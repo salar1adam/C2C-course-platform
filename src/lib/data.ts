@@ -108,6 +108,7 @@ export async function updateLesson(
     lessonId: string, 
     updates: { 
         title: string;
+        videoUrl: string;
         resourcesToDelete?: string[];
         newResources?: { name: string }[];
     }
@@ -116,6 +117,7 @@ export async function updateLesson(
         const lesson = module.lessons.find(l => l.id === lessonId);
         if (lesson) {
             lesson.title = updates.title;
+            lesson.videoUrl = updates.videoUrl;
 
             // Delete resources
             if (updates.resourcesToDelete && updates.resourcesToDelete.length > 0) {

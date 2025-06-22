@@ -99,8 +99,22 @@ export function EditLessonDialog({ lesson }: { lesson: Lesson }) {
             <Input id="lessonTitle" name="lessonTitle" defaultValue={lesson.title} required />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="lessonVideoUrl">Lesson Video URL</Label>
+            <Input 
+              id="lessonVideoUrl" 
+              name="lessonVideoUrl" 
+              defaultValue={lesson.videoUrl} 
+              placeholder="e.g., https://placehold.co/1920x1080"
+              required 
+            />
+            <p className="text-xs text-muted-foreground">
+              In a real app, this would be a video upload. For now, provide a URL.
+            </p>
+          </div>
+
           <div className="space-y-4">
-            <Label>Resources</Label>
+            <Label>Downloadable Resources</Label>
             <div className="space-y-3 rounded-lg border p-4">
               {currentResources.length === 0 && newFiles.length === 0 && (
                 <p className="text-sm text-muted-foreground">No resources for this lesson.</p>

@@ -125,11 +125,12 @@ export async function updateLessonAction(
 ): Promise<UpdateLessonFormState> {
   const lessonId = formData.get('lessonId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
+  const lessonVideoUrl = formData.get('lessonVideoUrl') as string;
   const resourcesToDelete = (formData.get('resourcesToDelete') as string).split(',').filter(Boolean);
   const newResourceFiles = formData.getAll('newResources') as File[];
 
-  if (!lessonId || !lessonTitle) {
-    return { message: 'Lesson ID and title are required.', status: 'error' };
+  if (!lessonId || !lessonTitle || !lessonVideoUrl) {
+    return { message: 'Lesson ID, title, and video URL are required.', status: 'error' };
   }
   
   const newResources = newResourceFiles.filter(f => f.size > 0).map(file => ({ name: file.name }));
@@ -137,6 +138,7 @@ export async function updateLessonAction(
   try {
     await updateLesson(lessonId, { 
       title: lessonTitle,
+      videoUrl: lessonVideoUrl,
       resourcesToDelete,
       newResources
     });
