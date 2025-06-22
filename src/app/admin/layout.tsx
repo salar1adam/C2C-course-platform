@@ -2,6 +2,8 @@ import Link from "next/link";
 import { MainHeader } from "@/components/layout/main-header";
 import { Home, Users, BookCopy } from "lucide-react";
 import { NavLink } from "@/components/layout/nav-link";
+import { getCurrentUser } from "@/lib/auth.server";
+import { redirect } from "next/navigation";
 
 const adminNavLinks = [
     { href: "/admin/dashboard", label: "Dashboard", icon: Home },
@@ -9,7 +11,17 @@ const adminNavLinks = [
     { href: "/admin/courses", label: "Courses", icon: BookCopy },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect('/');
+  }
+
+  if (user.role !== 'admin') {
+    redirect('/student/dashboard');
+  }
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <aside className="hidden border-r bg-muted/40 md:block">

@@ -1,8 +1,16 @@
 import { LoginForm } from '@/components/auth/login-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shell } from 'lucide-react';
+import { getCurrentUser } from '@/lib/auth.server';
+import { redirect } from 'next/navigation';
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const user = await getCurrentUser();
+  if (user) {
+    const redirectUrl = user.role === 'admin' ? '/admin/dashboard' : '/student/dashboard';
+    redirect(redirectUrl);
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
