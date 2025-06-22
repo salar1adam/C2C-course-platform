@@ -1,5 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ShieldCheck } from "lucide-react";
 
 type VideoPlayerProps = {
   videoUrl: string;
@@ -55,13 +53,6 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
                 </video>
             )}
         </div>
-        <Alert className="mt-4 border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
-            <ShieldCheck className="h-4 w-4 !text-blue-600" />
-            <AlertTitle>Secure Video Stream</AlertTitle>
-            <AlertDescription>
-                This video content is securely streamed to your device. Please do not distribute.
-            </AlertDescription>
-        </Alert>
     </div>
   );
 }
