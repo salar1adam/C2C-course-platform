@@ -102,7 +102,7 @@ export async function markLessonCompleteAction(
 
   try {
     await updateStudentProgress(user.id, courseId, lessonId);
-    revalidatePath(`/student/course/${courseId}`);
+    revalidatePath(`/student/course/${courseId}`, 'layout');
     revalidatePath(`/student/dashboard`);
     return { success: true };
   } catch (error) {
@@ -191,8 +191,9 @@ export async function updateLessonAction(
       newResources,
     });
     revalidatePath('/admin/courses');
-    // Also revalidate the student view of this lesson
+    // Revalidate the student view for the entire course (layout) and the specific lesson page
     revalidatePath(`/student/course/${courseId}`, 'layout');
+    revalidatePath(`/student/course/${courseId}/lesson/${lessonId}`);
     return {
       message: `Successfully updated lesson.`,
       status: 'success',
