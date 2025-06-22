@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getSession } from './lib/session'
+
+const SESSION_COOKIE_NAME = 'magellan_session';
 
 export async function middleware(request: NextRequest) {
-  const session = await getSession()
+  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  let session: { userId: string; role: 'admin' | 'student' } | null = null;
+  if (sessionCookie) {
+    try {
+      session = JSON.parse(sessionCookie);
+    } catch {
+      session = null;
+    }
+  }
+
   const { pathname } = request.nextUrl
 
   const isLoginPage = pathname === '/'
