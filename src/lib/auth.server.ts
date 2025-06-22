@@ -1,8 +1,21 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { findUserByEmail, findUserById } from './data';
+import { db } from './firebase';
 import type { User } from './types';
+
+async function findUserByEmail(email: string): Promise<User | undefined> {
+    const snapshot = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snapshot.empty) {
+        return undefined;
+    }
+    return snapshot.docs[0].data() as User;
+}
+
+async function findUserById(id: string): Promise<User | undefined> {
+    const doc = await db.collection('users').doc(id).get();
+    return doc.exists ? doc.data() as User : undefined;
+}
 
 const SESSION_COOKIE_NAME = 'magellan_session';
 

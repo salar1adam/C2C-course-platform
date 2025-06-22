@@ -77,19 +77,6 @@ async function seedDatabase() {
 // # Data Access Functions
 // ##################################################################
 
-export async function findUserByEmail(email: string): Promise<User | undefined> {
-    const snapshot = await db.collection('users').where('email', '==', email).limit(1).get();
-    if (snapshot.empty) {
-        return undefined;
-    }
-    return snapshot.docs[0].data() as User;
-}
-
-export async function findUserById(id: string): Promise<User | undefined> {
-    const doc = await db.collection('users').doc(id).get();
-    return doc.exists ? doc.data() as User : undefined;
-}
-
 export async function getAllUsers(): Promise<User[]> {
     const snapshot = await db.collection('users').get();
     if (snapshot.empty) {
@@ -102,13 +89,15 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function getCourse(id: string): Promise<Course | undefined> {
-    const doc = await db.collection('courses').doc(id).get();
+    const docRef = db.collection('courses').doc(id);
+    let doc = await docRef.get();
     if (!doc.exists) {
-        // The DB is probably not seeded yet. The seeding is triggered
-        // by the first call to getAllUsers().
-        // In a real app, you'd have a more robust seeding strategy.
-        console.warn(`Course ${id} not found. DB might not be seeded.`);
-        return undefined;
+        // This might be the first run, let's try seeding the database
+        await seedDatabase();
+        doc = await docRef.get();
+        if (!doc.exists) {
+            return undefined;
+        }
     }
     return doc.data() as Course;
 }
