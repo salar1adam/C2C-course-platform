@@ -15,7 +15,6 @@ function getYouTubeEmbedUrl(url: string): string | null {
       videoId = urlObject.pathname.substring(1).split('/')[0];
     }
   } catch (error) {
-    // Not a valid URL, so it's not a YouTube link.
     return null;
   }
 
@@ -26,17 +25,41 @@ function getYouTubeEmbedUrl(url: string): string | null {
   return null;
 }
 
+function getGoogleDriveEmbedUrl(url: string): string | null {
+  if (!url || !url.includes('drive.google.com')) {
+    return null;
+  }
+
+  try {
+    const urlObject = new URL(url);
+    const pathParts = urlObject.pathname.split('/'); 
+    const fileIdIndex = pathParts.indexOf('d');
+
+    if (fileIdIndex !== -1 && pathParts.length > fileIdIndex + 1) {
+      const fileId = pathParts[fileIdIndex + 1];
+      return `https://drive.google.com/file/d/${fileId}/preview`;
+    }
+  } catch (error) {
+    return null;
+  }
+
+  return null;
+}
+
 export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
   const youTubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
+  const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
+  
+  const embedUrl = youTubeEmbedUrl || googleDriveEmbedUrl;
 
   return (
     <div className="container mx-auto max-w-5xl">
         <div className="aspect-video w-full">
-            {youTubeEmbedUrl ? (
+            {embedUrl ? (
                 <iframe
                     className="w-full h-full rounded-lg shadow-2xl bg-black"
-                    src={youTubeEmbedUrl}
-                    title="YouTube video player"
+                    src={embedUrl}
+                    title="Video Player"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
@@ -47,7 +70,7 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
                     className="w-full h-full rounded-lg shadow-2xl bg-black"
                     controls
                     src={videoUrl}
-                    key={videoUrl} // Ensures video re-renders if URL changes
+                    key={videoUrl}
                 >
                     Your browser does not support the video tag.
                 </video>
