@@ -102,15 +102,13 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function getCourse(id: string): Promise<Course | undefined> {
-    const docRef = db.collection('courses').doc(id);
-    let doc = await docRef.get();
+    const doc = await db.collection('courses').doc(id).get();
     if (!doc.exists) {
-        // This might be the first run, let's try seeding the database
-        await seedDatabase();
-        doc = await docRef.get();
-        if (!doc.exists) {
-            return undefined;
-        }
+        // The DB is probably not seeded yet. The seeding is triggered
+        // by the first call to getAllUsers().
+        // In a real app, you'd have a more robust seeding strategy.
+        console.warn(`Course ${id} not found. DB might not be seeded.`);
+        return undefined;
     }
     return doc.data() as Course;
 }
