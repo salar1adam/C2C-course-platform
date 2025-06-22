@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { findUserByEmail, findUserById } from './data';
 import type { User } from './types';
+import { getSession } from './session';
 
 const SESSION_COOKIE_NAME = 'magellan_session';
 
@@ -11,17 +12,6 @@ export async function createSession(user: User) {
   const session = { userId: user.id, role: user.role };
 
   cookies().set(SESSION_COOKIE_NAME, JSON.stringify(session), { expires, httpOnly: true });
-}
-
-export async function getSession(): Promise<{ userId: string; role: 'admin' | 'student' } | null> {
-  const sessionCookie = cookies().get(SESSION_COOKIE_NAME)?.value;
-  if (!sessionCookie) return null;
-
-  try {
-    return JSON.parse(sessionCookie);
-  } catch {
-    return null;
-  }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
