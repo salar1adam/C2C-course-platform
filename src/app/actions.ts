@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { login, logout, getCurrentUser } from '@/lib/auth';
+import { login, logout, getCurrentUser } from '@/lib/auth.server';
 import { createStudent, updateStudentProgress, updateModule, updateLesson } from '@/lib/data';
 import { generatePersonalizedWelcomeEmail } from '@/ai/flows/personalized-welcome-email';
 

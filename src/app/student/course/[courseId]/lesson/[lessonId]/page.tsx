@@ -1,5 +1,5 @@
 import { getCourse, getStudentProgress } from "@/lib/data";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth.server";
 import { notFound } from "next/navigation";
 import { VideoPlayer } from "@/components/student/video-player";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

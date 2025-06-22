@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getCourse, getStudentProgress } from '@/lib/data';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth.server';
 import { CheckCircle, Circle } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
