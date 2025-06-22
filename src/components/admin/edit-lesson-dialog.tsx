@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useActionState, useRef } from 'react';
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Edit, Trash2, File as FileIcon, Upload } from 'lucide-react';
 import type { Lesson, Resource } from '@/lib/types';
 
@@ -39,6 +41,7 @@ export function EditLessonDialog({ lesson, courseId }: { lesson: Lesson; courseI
   const [resourcesToDelete, setResourcesToDelete] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -52,6 +55,7 @@ export function EditLessonDialog({ lesson, courseId }: { lesson: Lesson; courseI
       setCurrentResources(lesson.resources);
       setResourcesToDelete([]);
       setNewFiles([]);
+      setSelectedVideoFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -74,6 +78,14 @@ export function EditLessonDialog({ lesson, courseId }: { lesson: Lesson; courseI
         const trulyNew = newFileList.filter(f => !existingNames.has(f.name));
         return [...prevFiles, ...trulyNew];
       });
+    }
+  };
+
+  const handleVideoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedVideoFile(event.target.files[0]);
+    } else {
+      setSelectedVideoFile(null);
     }
   };
   
@@ -104,17 +116,39 @@ export function EditLessonDialog({ lesson, courseId }: { lesson: Lesson; courseI
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lessonVideoUrl">Lesson Video URL</Label>
-            <Input 
-              id="lessonVideoUrl" 
-              name="lessonVideoUrl" 
-              defaultValue={lesson.videoUrl || ''} 
-              placeholder="e.g., https://www.youtube.com/watch?v=..."
-              required 
-            />
-            <p className="text-xs text-muted-foreground">
-              Provide a direct video URL or a YouTube link.
-            </p>
+            <Label>Lesson Video</Label>
+            <Tabs defaultValue="url" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="url">URL</TabsTrigger>
+                <TabsTrigger value="upload">Upload File</TabsTrigger>
+              </TabsList>
+              <TabsContent value="url" className="mt-4">
+                <Label htmlFor="lessonVideoUrl">Video URL</Label>
+                <Input 
+                  id="lessonVideoUrl" 
+                  name="lessonVideoUrl" 
+                  defaultValue={lesson.videoUrl || ''} 
+                  placeholder="e.g., https://www.youtube.com/watch?v=..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Provide a direct video URL or a YouTube link.
+                </p>
+              </TabsContent>
+              <TabsContent value="upload" className="mt-4">
+                <Label htmlFor="lessonVideoFile">Video File</Label>
+                <Input 
+                  id="lessonVideoFile" 
+                  name="lessonVideoFile" 
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoFileChange}
+                />
+                {selectedVideoFile && <p className="text-xs text-muted-foreground mt-1">Selected: {selectedVideoFile.name}</p>}
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload a video file from your computer.
+                </p>
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="space-y-4">

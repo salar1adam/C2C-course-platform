@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -158,10 +159,13 @@ export async function updateLessonAction(
   formData: FormData
 ): Promise<UpdateLessonFormState> {
   const { updateLesson } = await import('@/lib/database.server');
+  const { uploadFile } = await import('@/lib/storage.server');
+
   const lessonId = formData.get('lessonId') as string;
   const courseId = formData.get('courseId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
-  const lessonVideoUrl = formData.get('lessonVideoUrl') as string;
+  let lessonVideoUrl = formData.get('lessonVideoUrl') as string;
+  const lessonVideoFile = formData.get('lessonVideoFile') as File;
   const resourcesToDelete = (
     (formData.get('resourcesToDelete') as string) || ''
   )
@@ -178,8 +182,19 @@ export async function updateLessonAction(
   if (!lessonTitle) {
     return { message: 'Lesson title cannot be empty.', status: 'error' };
   }
+
+  // Handle video upload
+  if (lessonVideoFile && lessonVideoFile.size > 0) {
+      try {
+        lessonVideoUrl = await uploadFile(lessonVideoFile);
+      } catch (error) {
+        console.error("Video upload failed:", error);
+        return { message: 'Failed to upload video.', status: 'error' };
+      }
+  }
+
   if (!lessonVideoUrl) {
-    return { message: 'Lesson video URL cannot be empty.', status: 'error' };
+    return { message: 'Lesson video cannot be empty. Please provide a URL or upload a file.', status: 'error' };
   }
 
   const newResources = newResourceFiles
