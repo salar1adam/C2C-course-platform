@@ -126,11 +126,17 @@ export async function updateLessonAction(
   const lessonId = formData.get('lessonId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
   const lessonVideoUrl = formData.get('lessonVideoUrl') as string;
-  const resourcesToDelete = (formData.get('resourcesToDelete') as string).split(',').filter(Boolean);
+  const resourcesToDelete = ((formData.get('resourcesToDelete') as string) || '').split(',').filter(Boolean);
   const newResourceFiles = formData.getAll('newResources') as File[];
 
-  if (!lessonId || !lessonTitle || !lessonVideoUrl) {
-    return { message: 'Lesson ID, title, and video URL are required.', status: 'error' };
+  if (!lessonId) {
+    return { message: 'Lesson ID is missing. Please try again.', status: 'error' };
+  }
+  if (!lessonTitle) {
+    return { message: 'Lesson title cannot be empty.', status: 'error' };
+  }
+  if (!lessonVideoUrl) {
+    return { message: 'Lesson video URL cannot be empty.', status: 'error' };
   }
   
   const newResources = newResourceFiles.filter(f => f.size > 0).map(file => ({ name: file.name }));

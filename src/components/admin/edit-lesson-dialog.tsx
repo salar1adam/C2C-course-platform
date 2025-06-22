@@ -104,7 +104,7 @@ export function EditLessonDialog({ lesson }: { lesson: Lesson }) {
             <Input 
               id="lessonVideoUrl" 
               name="lessonVideoUrl" 
-              defaultValue={lesson.videoUrl} 
+              defaultValue={lesson.videoUrl || ''} 
               placeholder="e.g., https://placehold.co/1920x1080"
               required 
             />
