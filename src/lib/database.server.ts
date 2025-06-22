@@ -1,6 +1,34 @@
-import 'server-only';
-import { db } from './firebase';
+import admin from 'firebase-admin';
 import type { Course, StudentProgress, User, Module, Lesson, Resource } from './types';
+
+// ##################################################################
+// # Firebase Initialization
+// ##################################################################
+
+if (!admin.apps.length) {
+    try {
+        const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+        if (!process.env.FIREBASE_PROJECT_ID || !privateKey || !process.env.FIREBASE_CLIENT_EMAIL) {
+            throw new Error('Firebase environment variables are not set. Please check your .env file.');
+        }
+
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                privateKey: privateKey,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            }),
+        });
+        console.log('Firebase Admin SDK initialized successfully.');
+    } catch (error: any) {
+        console.error('Firebase Admin SDK initialization error:', error.message);
+    }
+}
+
+export const db = admin.firestore();
+export const auth = admin.auth();
+
 
 // ##################################################################
 // # Database Seeding Logic
@@ -74,13 +102,25 @@ async function seedDatabase() {
 
 
 // ##################################################################
-// # Data Access Functions
+// # User Data Access
 // ##################################################################
+
+export async function findUserByEmail(email: string): Promise<User | undefined> {
+    const snapshot = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snapshot.empty) {
+        return undefined;
+    }
+    return snapshot.docs[0].data() as User;
+}
+
+export async function findUserById(id: string): Promise<User | undefined> {
+    const doc = await db.collection('users').doc(id).get();
+    return doc.exists ? doc.data() as User : undefined;
+}
 
 export async function getAllUsers(): Promise<User[]> {
     const snapshot = await db.collection('users').get();
     if (snapshot.empty) {
-        // If the DB is empty, this is the first run. Seed it.
         await seedDatabase();
         const newSnapshot = await db.collection('users').get();
         return newSnapshot.docs.map(doc => doc.data() as User);
@@ -88,12 +128,44 @@ export async function getAllUsers(): Promise<User[]> {
     return snapshot.docs.map(doc => doc.data() as User);
 }
 
+export async function createStudent(name: string, email: string): Promise<User> {
+    const usersCollection = db.collection('users');
+    const existingUser = await usersCollection.where('email', '==', email).get();
+    if (!existingUser.empty) {
+        throw new Error('User with this email already exists.');
+    }
+
+    const newUserId = db.collection('users').doc().id;
+    const newUser: User = {
+        id: newUserId,
+        name,
+        email,
+        role: 'student',
+    };
+    await usersCollection.doc(newUserId).set(newUser);
+    
+    const courseId = 'og-101';
+    const progressDocId = `${newUserId}_${courseId}`;
+    const newProgress: StudentProgress = { studentId: newUserId, courseId, completedLessons: [] };
+    await db.collection('studentProgress').doc(progressDocId).set(newProgress);
+
+    return newUser;
+}
+
+
+// ##################################################################
+// # Course Data Access
+// ##################################################################
+
 export async function getCourse(id: string): Promise<Course | undefined> {
     const docRef = db.collection('courses').doc(id);
     let doc = await docRef.get();
     if (!doc.exists) {
         // This might be the first run, let's try seeding the database
-        await seedDatabase();
+        const usersExist = !(await db.collection('users').limit(1).get()).empty;
+        if(!usersExist) {
+            await seedDatabase();
+        }
         doc = await docRef.get();
         if (!doc.exists) {
             return undefined;
@@ -127,30 +199,6 @@ export async function updateStudentProgress(studentId: string, courseId: string,
     }
 }
 
-export async function createStudent(name: string, email: string): Promise<User> {
-    const usersCollection = db.collection('users');
-    const existingUser = await usersCollection.where('email', '==', email).get();
-    if (!existingUser.empty) {
-        throw new Error('User with this email already exists.');
-    }
-
-    const newUserId = db.collection('users').doc().id;
-    const newUser: User = {
-        id: newUserId,
-        name,
-        email,
-        role: 'student',
-    };
-    await usersCollection.doc(newUserId).set(newUser);
-    
-    // Also create their progress doc
-    const courseId = 'og-101';
-    const progressDocId = `${newUserId}_${courseId}`;
-    const newProgress: StudentProgress = { studentId: newUserId, courseId, completedLessons: [] };
-    await db.collection('studentProgress').doc(progressDocId).set(newProgress);
-
-    return newUser;
-}
 
 export async function updateModule(courseId: string, moduleId: string, newTitle: string): Promise<Module> {
     const courseRef = db.collection('courses').doc(courseId);

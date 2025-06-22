@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getCourse, getStudentProgress } from '@/lib/data';
+import { getCourse, getStudentProgress } from '@/lib/database.server';
 import { getCurrentUser } from '@/lib/auth.server';
 
 export default async function CoursePage({ params }: { params: { courseId: string } }) {

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getCourse, getStudentProgress } from '@/lib/data';
+import { getCourse, getStudentProgress } from '@/lib/database.server';
 import { getCurrentUser } from '@/lib/auth.server';
 import { CheckCircle, Circle } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';

@@ -1,4 +1,4 @@
-import { getCourse } from "@/lib/data";
+import { getCourse } from "@/lib/database.server";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";

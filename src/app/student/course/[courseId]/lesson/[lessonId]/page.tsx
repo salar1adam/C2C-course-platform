@@ -1,4 +1,4 @@
-import { getCourse, getStudentProgress } from "@/lib/data";
+import { getCourse, getStudentProgress } from "@/lib/database.server";
 import { getCurrentUser } from "@/lib/auth.server";
 import { notFound } from "next/navigation";
 import { VideoPlayer } from "@/components/student/video-player";

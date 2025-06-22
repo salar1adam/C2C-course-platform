@@ -2,11 +2,57 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { login, logout, getCurrentUser } from '@/lib/auth.server';
-import { createStudent, updateStudentProgress, updateModule, updateLesson } from '@/lib/data';
-import { generatePersonalizedWelcomeEmail } from '@/ai/flows/personalized-welcome-email';
+import type { File } from 'buffer';
 
+export type CreateStudentFormState = {
+  message: string;
+  welcomeEmail?: string;
+  status: 'idle' | 'success' | 'error';
+};
+
+export async function createStudentAction(
+  prevState: CreateStudentFormState,
+  formData: FormData
+): Promise<CreateStudentFormState> {
+  const { createStudent } = await import('@/lib/database.server');
+  const { generatePersonalizedWelcomeEmail } = await import(
+    '@/ai/flows/personalized-welcome-email'
+  );
+
+  const studentName = formData.get('studentName') as string;
+  const email = formData.get('email') as string;
+  const learningInterests = formData.get('learningInterests') as string;
+
+  if (!studentName || !email || !learningInterests) {
+    return { message: 'All fields are required.', status: 'error' };
+  }
+
+  try {
+    const newStudent = await createStudent(studentName, email);
+
+    const aiInput = {
+      studentName,
+      courseName: 'Master Oil & Gas Exploration: From Core to Crust',
+      registrationDate: new Date().toISOString().split('T')[0],
+      learningInterests,
+    };
+
+    const { personalizedWelcomeMessage } =
+      await generatePersonalizedWelcomeEmail(aiInput);
+
+    revalidatePath('/admin/users');
+    return {
+      message: `Successfully created student: ${newStudent.name}.`,
+      welcomeEmail: personalizedWelcomeMessage,
+      status: 'success',
+    };
+  } catch (error) {
+    console.error(error);
+    return { message: 'Failed to create student.', status: 'error' };
+  }
+}
 export async function loginAction(formData: FormData) {
+  const { login } = await import('@/lib/auth.server');
   const result = await login(formData);
   if (result.error) {
     // In a real app, you would handle this more gracefully.
@@ -16,17 +62,24 @@ export async function loginAction(formData: FormData) {
   }
 
   if (result.success) {
-    const redirectUrl = result.role === 'admin' ? '/admin/dashboard' : '/student/dashboard';
+    const redirectUrl =
+      result.role === 'admin' ? '/admin/dashboard' : '/student/dashboard';
     redirect(redirectUrl);
   }
 }
 
 export async function logoutAction() {
+  const { logout } = await import('@/lib/auth.server');
   await logout();
   redirect('/');
 }
 
-export async function markLessonCompleteAction(lessonId: string, courseId: string) {
+export async function markLessonCompleteAction(
+  lessonId: string,
+  courseId: string
+) {
+  const { getCurrentUser } = await import('@/lib/auth.server');
+  const { updateStudentProgress } = await import('@/lib/database.server');
   const user = await getCurrentUser();
   if (!user || user.role !== 'student') {
     return { error: 'Unauthorized' };
@@ -42,49 +95,6 @@ export async function markLessonCompleteAction(lessonId: string, courseId: strin
   }
 }
 
-export type CreateStudentFormState = {
-  message: string;
-  welcomeEmail?: string;
-  status: 'idle' | 'success' | 'error';
-};
-
-export async function createStudentAction(
-  prevState: CreateStudentFormState,
-  formData: FormData
-): Promise<CreateStudentFormState> {
-  const studentName = formData.get('studentName') as string;
-  const email = formData.get('email') as string;
-  const learningInterests = formData.get('learningInterests') as string;
-
-  if (!studentName || !email || !learningInterests) {
-    return { message: 'All fields are required.', status: 'error' };
-  }
-
-  try {
-    const newStudent = await createStudent(studentName, email);
-    
-    const aiInput = {
-        studentName,
-        courseName: 'Master Oil & Gas Exploration: From Core to Crust',
-        registrationDate: new Date().toISOString().split('T')[0],
-        learningInterests,
-    };
-
-    const { personalizedWelcomeMessage } = await generatePersonalizedWelcomeEmail(aiInput);
-
-    revalidatePath('/admin/users');
-    return {
-      message: `Successfully created student: ${newStudent.name}.`,
-      welcomeEmail: personalizedWelcomeMessage,
-      status: 'success',
-    };
-  } catch (error) {
-    console.error(error);
-    return { message: 'Failed to create student.', status: 'error' };
-  }
-}
-
-
 export type UpdateModuleFormState = {
   message: string;
   status: 'idle' | 'success' | 'error';
@@ -94,12 +104,16 @@ export async function updateModuleAction(
   prevState: UpdateModuleFormState,
   formData: FormData
 ): Promise<UpdateModuleFormState> {
+  const { updateModule } = await import('@/lib/database.server');
   const moduleId = formData.get('moduleId') as string;
   const moduleTitle = formData.get('moduleTitle') as string;
   const courseId = formData.get('courseId') as string;
 
   if (!moduleId || !moduleTitle || !courseId) {
-    return { message: 'Module ID, title, and course ID are required.', status: 'error' };
+    return {
+      message: 'Module ID, title, and course ID are required.',
+      status: 'error',
+    };
   }
 
   try {
@@ -124,11 +138,16 @@ export async function updateLessonAction(
   prevState: UpdateLessonFormState,
   formData: FormData
 ): Promise<UpdateLessonFormState> {
+  const { updateLesson } = await import('@/lib/database.server');
   const lessonId = formData.get('lessonId') as string;
   const courseId = formData.get('courseId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
   const lessonVideoUrl = formData.get('lessonVideoUrl') as string;
-  const resourcesToDelete = ((formData.get('resourcesToDelete') as string) || '').split(',').filter(Boolean);
+  const resourcesToDelete = (
+    (formData.get('resourcesToDelete') as string) || ''
+  )
+    .split(',')
+    .filter(Boolean);
   const newResourceFiles = formData.getAll('newResources') as File[];
 
   if (!lessonId) {
@@ -143,15 +162,17 @@ export async function updateLessonAction(
   if (!lessonVideoUrl) {
     return { message: 'Lesson video URL cannot be empty.', status: 'error' };
   }
-  
-  const newResources = newResourceFiles.filter(f => f.size > 0).map(file => ({ name: file.name }));
+
+  const newResources = newResourceFiles
+    .filter(f => f.size > 0)
+    .map(file => ({ name: file.name }));
 
   try {
-    await updateLesson(courseId, lessonId, { 
+    await updateLesson(courseId, lessonId, {
       title: lessonTitle,
       videoUrl: lessonVideoUrl,
       resourcesToDelete,
-      newResources
+      newResources,
     });
     revalidatePath('/admin/courses');
     // Also revalidate the student view of this lesson

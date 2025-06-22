@@ -1,4 +1,4 @@
-import { getAllUsers } from "@/lib/data";
+import { getAllUsers } from "@/lib/database.server";
 import { CreateStudentDialog } from "@/components/admin/create-student-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

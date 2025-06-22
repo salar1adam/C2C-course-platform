@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { getAllUsers, getCourse } from "@/lib/data";
+import { getAllUsers, getCourse } from "@/lib/database.server";
 import { Users, BookCopy, ArrowRight } from "lucide-react";
 
 export default async function AdminDashboard() {
