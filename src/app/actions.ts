@@ -3,7 +3,6 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { File } from 'buffer';
 import { cookies } from 'next/headers';
 import { getCurrentUser } from '@/lib/auth.server';
 
@@ -159,19 +158,11 @@ export async function updateLessonAction(
   formData: FormData
 ): Promise<UpdateLessonFormState> {
   const { updateLesson } = await import('@/lib/database.server');
-  const { uploadFile } = await import('@/lib/storage.server');
 
   const lessonId = formData.get('lessonId') as string;
   const courseId = formData.get('courseId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
-  let lessonVideoUrl = formData.get('lessonVideoUrl') as string;
-  const lessonVideoFile = formData.get('lessonVideoFile') as File;
-  const resourcesToDelete = (
-    (formData.get('resourcesToDelete') as string) || ''
-  )
-    .split(',')
-    .filter(Boolean);
-  const newResourceFiles = formData.getAll('newResources') as File[];
+  const lessonVideoUrl = formData.get('lessonVideoUrl') as string;
 
   if (!lessonId) {
     return { message: 'Lesson ID is missing. Please try again.', status: 'error' };
@@ -182,31 +173,14 @@ export async function updateLessonAction(
   if (!lessonTitle) {
     return { message: 'Lesson title cannot be empty.', status: 'error' };
   }
-
-  // Handle video upload
-  if (lessonVideoFile && lessonVideoFile.size > 0) {
-      try {
-        lessonVideoUrl = await uploadFile(lessonVideoFile);
-      } catch (error) {
-        console.error("Video upload failed:", error);
-        return { message: 'Failed to upload video.', status: 'error' };
-      }
-  }
-
   if (!lessonVideoUrl) {
-    return { message: 'Lesson video cannot be empty. Please provide a URL or upload a file.', status: 'error' };
+    return { message: 'Lesson video URL cannot be empty.', status: 'error' };
   }
-
-  const newResources = newResourceFiles
-    .filter(f => f.size > 0)
-    .map(file => ({ name: file.name }));
 
   try {
     await updateLesson(courseId, lessonId, {
       title: lessonTitle,
       videoUrl: lessonVideoUrl,
-      resourcesToDelete,
-      newResources,
     });
     revalidatePath('/admin/courses');
     revalidatePath(`/student/course/${courseId}`, 'layout');

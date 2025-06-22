@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import type { Course, StudentProgress, User, Module, Lesson, Resource } from './types';
+import type { Course, StudentProgress, User, Module, Lesson } from './types';
 
 // ##################################################################
 // # Firebase Initialization
@@ -232,8 +232,6 @@ export async function updateLesson(
     updates: { 
         title: string;
         videoUrl: string;
-        resourcesToDelete?: string[];
-        newResources?: { name: string }[];
     }
 ): Promise<Lesson> {
     await ensureDatabaseSeeded();
@@ -253,23 +251,6 @@ export async function updateLesson(
             
             lesson.title = updates.title;
             lesson.videoUrl = updates.videoUrl;
-
-            // Delete resources
-            if (updates.resourcesToDelete && updates.resourcesToDelete.length > 0) {
-                lesson.resources = lesson.resources.filter(
-                    r => !updates.resourcesToDelete?.includes(r.id)
-                );
-            }
-
-            // Add new resources
-            if (updates.newResources && updates.newResources.length > 0) {
-                const newResourceObjects: Resource[] = updates.newResources.map((res, index) => ({
-                    id: `r${Date.now()}${index}`,
-                    name: res.name,
-                    url: '#', // In a real app, this would be a URL from a file upload service
-                }));
-                lesson.resources.push(...newResourceObjects);
-            }
             
             targetLesson = lesson;
             break;
