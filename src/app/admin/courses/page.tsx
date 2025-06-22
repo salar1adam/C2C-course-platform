@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Edit, PlusCircle, Video, FileText } from "lucide-react";
+import { EditModuleDialog } from "@/components/admin/edit-module-dialog";
+import { EditLessonDialog } from "@/components/admin/edit-lesson-dialog";
 
 export default async function CoursesPage() {
     const course = await getCourse('og-101');
@@ -30,7 +32,7 @@ export default async function CoursesPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Accordion type="multiple" className="w-full space-y-4">
+                    <Accordion type="multiple" className="w-full space-y-4" defaultValue={course.modules.map(m => m.id)}>
                         {course.modules.map(module => (
                             <AccordionItem value={module.id} key={module.id} className="border rounded-lg bg-background">
                                 <AccordionTrigger className="px-4 text-lg font-semibold hover:no-underline">
@@ -38,10 +40,7 @@ export default async function CoursesPage() {
                                 </AccordionTrigger>
                                 <AccordionContent className="p-4 border-t">
                                      <div className="flex justify-end mb-4">
-                                        <Button variant="outline">
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            Edit Module
-                                        </Button>
+                                        <EditModuleDialog module={module} />
                                     </div>
                                     <ul className="space-y-3">
                                         {module.lessons.map(lesson => (
@@ -56,7 +55,7 @@ export default async function CoursesPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                                <EditLessonDialog lesson={lesson} />
                                             </li>
                                         ))}
                                     </ul>

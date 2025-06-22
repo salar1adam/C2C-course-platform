@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { createStudentAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +32,7 @@ function SubmitButton() {
 export function CreateStudentDialog() {
   const [open, setOpen] = useState(false);
   const initialState = { message: '', status: 'idle' as const };
-  const [state, formAction] = useFormState(createStudentAction, initialState);
+  const [state, formAction] = useActionState(createStudentAction, initialState);
 
   useEffect(() => {
     if (state.status === 'success') {

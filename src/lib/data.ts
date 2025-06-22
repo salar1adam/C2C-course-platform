@@ -1,4 +1,4 @@
-import type { Course, StudentProgress, User } from './types';
+import type { Course, StudentProgress, User, Module, Lesson } from './types';
 
 // Mock Users
 const users: User[] = [
@@ -92,4 +92,25 @@ export async function createStudent(name: string, email: string): Promise<User> 
     users.push(newUser);
     studentProgress.push({ studentId: newUser.id, courseId: 'og-101', completedLessons: [] });
     return newUser;
+}
+
+export async function updateModule(moduleId: string, newTitle: string): Promise<Module | undefined> {
+    for (const module of course.modules) {
+        if (module.id === moduleId) {
+            module.title = newTitle;
+            return module;
+        }
+    }
+    return undefined;
+}
+
+export async function updateLesson(lessonId: string, newTitle: string): Promise<Lesson | undefined> {
+    for (const module of course.modules) {
+        const lesson = module.lessons.find(l => l.id === lessonId);
+        if (lesson) {
+            lesson.title = newTitle;
+            return lesson;
+        }
+    }
+    return undefined;
 }

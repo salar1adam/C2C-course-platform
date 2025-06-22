@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { login, logout, getCurrentUser } from '@/lib/auth';
-import { createStudent, updateStudentProgress } from '@/lib/data';
+import { createStudent, updateStudentProgress, updateModule, updateLesson } from '@/lib/data';
 import { generatePersonalizedWelcomeEmail } from '@/ai/flows/personalized-welcome-email';
 
 export async function loginAction(formData: FormData) {
@@ -81,5 +81,64 @@ export async function createStudentAction(
   } catch (error) {
     console.error(error);
     return { message: 'Failed to create student.', status: 'error' };
+  }
+}
+
+
+export type UpdateModuleFormState = {
+  message: string;
+  status: 'idle' | 'success' | 'error';
+};
+
+export async function updateModuleAction(
+  prevState: UpdateModuleFormState,
+  formData: FormData
+): Promise<UpdateModuleFormState> {
+  const moduleId = formData.get('moduleId') as string;
+  const moduleTitle = formData.get('moduleTitle') as string;
+
+  if (!moduleId || !moduleTitle) {
+    return { message: 'Module ID and title are required.', status: 'error' };
+  }
+
+  try {
+    await updateModule(moduleId, moduleTitle);
+    revalidatePath('/admin/courses');
+    return {
+      message: `Successfully updated module.`,
+      status: 'success',
+    };
+  } catch (error) {
+    console.error(error);
+    return { message: 'Failed to update module.', status: 'error' };
+  }
+}
+
+export type UpdateLessonFormState = {
+  message: string;
+  status: 'idle' | 'success' | 'error';
+};
+
+export async function updateLessonAction(
+  prevState: UpdateLessonFormState,
+  formData: FormData
+): Promise<UpdateLessonFormState> {
+  const lessonId = formData.get('lessonId') as string;
+  const lessonTitle = formData.get('lessonTitle') as string;
+
+  if (!lessonId || !lessonTitle) {
+    return { message: 'Lesson ID and title are required.', status: 'error' };
+  }
+
+  try {
+    await updateLesson(lessonId, lessonTitle);
+    revalidatePath('/admin/courses');
+    return {
+      message: `Successfully updated lesson.`,
+      status: 'success',
+    };
+  } catch (error) {
+    console.error(error);
+    return { message: 'Failed to update lesson.', status: 'error' };
   }
 }
