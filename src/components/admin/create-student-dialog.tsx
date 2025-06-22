@@ -94,10 +94,6 @@ export function CreateStudentDialog() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Temporary Password</Label>
-                <Input id="password" name="password" type="password" required />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="learningInterests">Learning Interests</Label>
                 <Textarea
                   id="learningInterests"
