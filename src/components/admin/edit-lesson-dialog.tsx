@@ -28,7 +28,7 @@ function SubmitButton() {
   );
 }
 
-export function EditLessonDialog({ lesson }: { lesson: Lesson }) {
+export function EditLessonDialog({ lesson, courseId }: { lesson: Lesson; courseId: string; }) {
   const [open, setOpen] = useState(false);
   const initialState: UpdateLessonFormState = { message: '', status: 'idle' };
   
@@ -52,6 +52,9 @@ export function EditLessonDialog({ lesson }: { lesson: Lesson }) {
       setCurrentResources(lesson.resources);
       setResourcesToDelete([]);
       setNewFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   }, [open, lesson.resources]);
 
@@ -92,6 +95,7 @@ export function EditLessonDialog({ lesson }: { lesson: Lesson }) {
         </DialogHeader>
         <form action={formAction} className="space-y-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
           <input type="hidden" name="lessonId" value={lesson.id} />
+          <input type="hidden" name="courseId" value={courseId} />
           <input type="hidden" name="resourcesToDelete" value={resourcesToDelete.join(',')} />
           
           <div className="space-y-2">
@@ -105,11 +109,11 @@ export function EditLessonDialog({ lesson }: { lesson: Lesson }) {
               id="lessonVideoUrl" 
               name="lessonVideoUrl" 
               defaultValue={lesson.videoUrl || ''} 
-              placeholder="e.g., https://placehold.co/1920x1080"
+              placeholder="e.g., https://www.youtube.com/watch?v=..."
               required 
             />
             <p className="text-xs text-muted-foreground">
-              In a real app, this would be a video upload. For now, provide a URL.
+              Provide a direct video URL or a YouTube link.
             </p>
           </div>
 

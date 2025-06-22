@@ -40,7 +40,7 @@ export default async function CoursesPage() {
                                 </AccordionTrigger>
                                 <AccordionContent className="p-4 border-t">
                                      <div className="flex justify-end mb-4">
-                                        <EditModuleDialog module={module} />
+                                        <EditModuleDialog module={module} courseId={course.id} />
                                     </div>
                                     <ul className="space-y-3">
                                         {module.lessons.map(lesson => (
@@ -55,7 +55,7 @@ export default async function CoursesPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <EditLessonDialog lesson={lesson} />
+                                                <EditLessonDialog lesson={lesson} courseId={course.id} />
                                             </li>
                                         ))}
                                     </ul>

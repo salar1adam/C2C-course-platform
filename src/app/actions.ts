@@ -96,13 +96,14 @@ export async function updateModuleAction(
 ): Promise<UpdateModuleFormState> {
   const moduleId = formData.get('moduleId') as string;
   const moduleTitle = formData.get('moduleTitle') as string;
+  const courseId = formData.get('courseId') as string;
 
-  if (!moduleId || !moduleTitle) {
-    return { message: 'Module ID and title are required.', status: 'error' };
+  if (!moduleId || !moduleTitle || !courseId) {
+    return { message: 'Module ID, title, and course ID are required.', status: 'error' };
   }
 
   try {
-    await updateModule(moduleId, moduleTitle);
+    await updateModule(courseId, moduleId, moduleTitle);
     revalidatePath('/admin/courses');
     return {
       message: `Successfully updated module.`,
@@ -124,6 +125,7 @@ export async function updateLessonAction(
   formData: FormData
 ): Promise<UpdateLessonFormState> {
   const lessonId = formData.get('lessonId') as string;
+  const courseId = formData.get('courseId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
   const lessonVideoUrl = formData.get('lessonVideoUrl') as string;
   const resourcesToDelete = ((formData.get('resourcesToDelete') as string) || '').split(',').filter(Boolean);
@@ -131,6 +133,9 @@ export async function updateLessonAction(
 
   if (!lessonId) {
     return { message: 'Lesson ID is missing. Please try again.', status: 'error' };
+  }
+  if (!courseId) {
+    return { message: 'Course ID is missing. Please try again.', status: 'error' };
   }
   if (!lessonTitle) {
     return { message: 'Lesson title cannot be empty.', status: 'error' };
@@ -142,7 +147,7 @@ export async function updateLessonAction(
   const newResources = newResourceFiles.filter(f => f.size > 0).map(file => ({ name: file.name }));
 
   try {
-    await updateLesson(lessonId, { 
+    await updateLesson(courseId, lessonId, { 
       title: lessonTitle,
       videoUrl: lessonVideoUrl,
       resourcesToDelete,
@@ -150,7 +155,7 @@ export async function updateLessonAction(
     });
     revalidatePath('/admin/courses');
     // Also revalidate the student view of this lesson
-    revalidatePath(`/student/course/og-101/lesson/${lessonId}`);
+    revalidatePath(`/student/course/${courseId}/lesson/${lessonId}`);
     return {
       message: `Successfully updated lesson.`,
       status: 'success',

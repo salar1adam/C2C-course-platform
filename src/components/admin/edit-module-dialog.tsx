@@ -28,7 +28,7 @@ function SubmitButton() {
   );
 }
 
-export function EditModuleDialog({ module }: { module: Module }) {
+export function EditModuleDialog({ module, courseId }: { module: Module, courseId: string }) {
   const [open, setOpen] = useState(false);
   const initialState: UpdateModuleFormState = { message: '', status: 'idle' };
   
@@ -57,6 +57,7 @@ export function EditModuleDialog({ module }: { module: Module }) {
         </DialogHeader>
         <form action={formAction} className="space-y-4 py-4">
           <input type="hidden" name="moduleId" value={module.id} />
+          <input type="hidden" name="courseId" value={courseId} />
           <div className="space-y-2">
             <Label htmlFor="moduleTitle">Module Title</Label>
             <Input id="moduleTitle" name="moduleTitle" defaultValue={module.title} required />
