@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { getCourse, getStudentProgress } from '@/lib/data';
 import { getCurrentUser } from '@/lib/auth';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { CheckCircle, Circle } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
@@ -10,9 +9,9 @@ export default async function CourseLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { courseId: string; lessonId: string };
+  params: { courseId: string; lessonId?: string };
 }) {
-  const { courseId } = params;
+  const { courseId, lessonId } = params;
   const user = await getCurrentUser();
   const course = await getCourse(courseId);
   if (!user || !course) return <div>Loading...</div>;
@@ -21,7 +20,7 @@ export default async function CourseLayout({
   const completedLessons = progress?.completedLessons || [];
 
   const allLessons = course.modules.flatMap(m => m.lessons);
-  const defaultOpenModules = course.modules.filter(m => m.lessons.some(l => allLessons.find(lesson => lesson.id === params.lessonId))).map(m => m.id);
+  const defaultOpenModules = course.modules.filter(m => m.lessons.some(l => allLessons.find(lesson => lesson.id === lessonId))).map(m => m.id);
 
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-4rem)]">
@@ -41,7 +40,7 @@ export default async function CourseLayout({
                                 {module.lessons.map((lesson) => (
                                     <li key={lesson.id}>
                                         <Link href={`/student/course/${courseId}/lesson/${lesson.id}`} 
-                                              className={`flex items-center gap-3 rounded-md p-2 text-sm transition-colors hover:bg-muted ${lesson.id === params.lessonId ? 'bg-muted font-semibold' : ''}`}
+                                              className={`flex items-center gap-3 rounded-md p-2 text-sm transition-colors hover:bg-muted ${lesson.id === lessonId ? 'bg-muted font-semibold' : ''}`}
                                         >
                                             {completedLessons.includes(lesson.id) ? 
                                                 <CheckCircle className="h-5 w-5 text-green-500" /> : 

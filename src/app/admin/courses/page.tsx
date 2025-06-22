@@ -34,14 +34,15 @@ export default async function CoursesPage() {
                         {course.modules.map(module => (
                             <AccordionItem value={module.id} key={module.id} className="border rounded-lg bg-background">
                                 <AccordionTrigger className="px-4 text-lg font-semibold hover:no-underline">
-                                    <div className="flex items-center justify-between w-full">
-                                        <span>{module.title}</span>
-                                        <div className="flex items-center gap-2 mr-4">
-                                            <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><Edit className="h-4 w-4" /></Button>
-                                        </div>
-                                    </div>
+                                    {module.title}
                                 </AccordionTrigger>
                                 <AccordionContent className="p-4 border-t">
+                                     <div className="flex justify-end mb-4">
+                                        <Button variant="outline">
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            Edit Module
+                                        </Button>
+                                    </div>
                                     <ul className="space-y-3">
                                         {module.lessons.map(lesson => (
                                             <li key={lesson.id} className="flex items-center justify-between p-3 rounded-lg bg-muted">
