@@ -17,7 +17,7 @@ const course: Course = {
       id: 'm1',
       title: 'Module 1: Geological Fundamentals',
       lessons: [
-        { id: 'l1-1', title: 'Introduction to Sedimentary Basins', videoUrl: 'https://placehold.co/1920x1080', resources: [{ id: 'r1', name: 'Lesson 1 Script.pdf', url: '#' }] },
+        { id: 'l1-1', title: 'Introduction to Sedimentary Basins', videoUrl: 'https://www.youtube.com/watch?v=f47_eD-0_wA', resources: [{ id: 'r1', name: 'Lesson 1 Script.pdf', url: '#' }] },
         { id: 'l1-2', title: 'Source Rock and Hydrocarbon Generation', videoUrl: 'https://placehold.co/1920x1080', resources: [{ id: 'r2', name: 'Source Rock Data.zip', url: '#' }] },
       ],
     },
