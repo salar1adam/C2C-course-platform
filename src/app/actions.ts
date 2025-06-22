@@ -134,6 +134,7 @@ export async function updateModuleAction(
   try {
     await updateModule(courseId, moduleId, moduleTitle);
     revalidatePath('/admin/courses');
+    revalidatePath(`/student/course/${courseId}`, 'layout');
     return {
       message: `Successfully updated module.`,
       status: 'success',
@@ -191,7 +192,7 @@ export async function updateLessonAction(
     });
     revalidatePath('/admin/courses');
     // Also revalidate the student view of this lesson
-    revalidatePath(`/student/course/${courseId}/lesson/${lessonId}`);
+    revalidatePath(`/student/course/${courseId}`, 'layout');
     return {
       message: `Successfully updated lesson.`,
       status: 'success',
