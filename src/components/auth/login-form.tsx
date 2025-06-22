@@ -1,11 +1,13 @@
 'use client';
 
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { loginAction } from '@/app/actions';
+import { loginAction, type LoginFormState } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogIn } from 'lucide-react';
+import { LogIn, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -18,8 +20,20 @@ function SubmitButton() {
 }
 
 export function LoginForm() {
+  const initialState: LoginFormState = { message: '', status: 'idle' };
+  const [state, formAction] = useActionState(loginAction, initialState);
+
   return (
-    <form action={loginAction} className="space-y-4">
+    <form action={formAction} className="space-y-4">
+      {state.status === 'error' && (
+        <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Login Failed</AlertTitle>
+            <AlertDescription>
+                {state.message}. Please check your credentials and try again.
+            </AlertDescription>
+        </Alert>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input

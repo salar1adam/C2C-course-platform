@@ -51,14 +51,24 @@ export async function createStudentAction(
     return { message: 'Failed to create student.', status: 'error' };
   }
 }
-export async function loginAction(formData: FormData) {
+
+export type LoginFormState = {
+  message: string;
+  status: 'idle' | 'success' | 'error';
+};
+
+export async function loginAction(
+  prevState: LoginFormState,
+  formData: FormData
+): Promise<LoginFormState> {
   const { login } = await import('@/lib/auth.server');
   const result = await login(formData);
+
   if (result.error) {
-    // In a real app, you would handle this more gracefully.
-    // For now, we just won't redirect.
-    console.error(result.error);
-    return result;
+    return {
+      message: result.error,
+      status: 'error',
+    };
   }
 
   if (result.success) {
@@ -66,7 +76,12 @@ export async function loginAction(formData: FormData) {
       result.role === 'admin' ? '/admin/dashboard' : '/student/dashboard';
     redirect(redirectUrl);
   }
+
+  // This part is not expected to be reached because redirect() throws an error,
+  // but it's here to satisfy TypeScript's return type requirement.
+  return { message: 'An unexpected error occurred.', status: 'error' };
 }
+
 
 export async function logoutAction() {
   const { logout } = await import('@/lib/auth.server');
