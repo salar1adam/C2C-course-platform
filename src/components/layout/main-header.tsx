@@ -12,17 +12,6 @@ import { Button } from '@/components/ui/button';
 import { LogOut, Shell } from 'lucide-react';
 import { logoutAction } from '@/app/actions';
 
-function LogoutButton() {
-    return (
-        <form action={logoutAction} className='w-full'>
-            <button type="submit" className='flex w-full items-center gap-2'>
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-            </button>
-        </form>
-    )
-}
-
 export async function MainHeader() {
   const user = await getCurrentUser();
 
@@ -53,9 +42,14 @@ export async function MainHeader() {
             <div className='text-xs text-muted-foreground'>{user.email}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <LogoutButton />
-          </DropdownMenuItem>
+          <form action={logoutAction} className="w-full">
+            <DropdownMenuItem asChild>
+                <button type="submit" className="w-full text-left">
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                </button>
+            </DropdownMenuItem>
+          </form>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

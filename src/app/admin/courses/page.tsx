@@ -37,7 +37,7 @@ export default async function CoursesPage() {
                                     <div className="flex items-center justify-between w-full">
                                         <span>{module.title}</span>
                                         <div className="flex items-center gap-2 mr-4">
-                                            <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><Edit className="h-4 w-4" /></Button>
                                         </div>
                                     </div>
                                 </AccordionTrigger>
