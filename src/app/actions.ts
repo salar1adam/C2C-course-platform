@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { File } from 'buffer';
+import { cookies } from 'next/headers';
+import { getCurrentUser } from '@/lib/auth.server';
 
 export type CreateStudentFormState = {
   message: string;
@@ -103,6 +105,7 @@ export async function markLessonCompleteAction(
   try {
     await updateStudentProgress(user.id, courseId, lessonId);
     revalidatePath(`/student/course/${courseId}`, 'layout');
+    revalidatePath(`/student/course/${courseId}/lesson/${lessonId}`);
     revalidatePath(`/student/dashboard`);
     return { success: true };
   } catch (error) {
@@ -191,7 +194,6 @@ export async function updateLessonAction(
       newResources,
     });
     revalidatePath('/admin/courses');
-    // Revalidate the student view for the entire course (layout) and the specific lesson page
     revalidatePath(`/student/course/${courseId}`, 'layout');
     revalidatePath(`/student/course/${courseId}/lesson/${lessonId}`);
     return {
@@ -201,5 +203,23 @@ export async function updateLessonAction(
   } catch (error) {
     console.error(error);
     return { message: 'Failed to update lesson.', status: 'error' };
+  }
+}
+
+export async function setViewModeAction(formData: FormData) {
+  const user = await getCurrentUser();
+  if (user?.role !== 'admin') {
+    // This action is only for admins
+    return;
+  }
+
+  const mode = formData.get('mode') as 'student' | 'admin';
+
+  if (mode === 'student') {
+    cookies().set('view_mode', 'student', { path: '/' });
+    redirect('/student/dashboard');
+  } else {
+    cookies().delete('view_mode');
+    redirect('/admin/dashboard');
   }
 }

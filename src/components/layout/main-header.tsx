@@ -9,17 +9,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { LogOut, Shell } from 'lucide-react';
-import { logoutAction } from '@/app/actions';
+import { LogOut, Shell, Eye, User } from 'lucide-react';
+import { logoutAction, setViewModeAction } from '@/app/actions';
+import { cookies } from 'next/headers';
 
 export async function MainHeader() {
   const user = await getCurrentUser();
+  const viewMode = cookies().get('view_mode')?.value;
 
   if (!user) {
     return null;
   }
 
   const userInitials = user.name.split(' ').map(n => n[0]).join('');
+  const isAdminInStudentView = user.role === 'admin' && viewMode === 'student';
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
@@ -42,6 +45,26 @@ export async function MainHeader() {
             <div className='text-xs text-muted-foreground'>{user.email}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {user.role === 'admin' && (
+            <form action={setViewModeAction} className="w-full">
+              <input type="hidden" name="mode" value={isAdminInStudentView ? 'admin' : 'student'} />
+              <DropdownMenuItem asChild>
+                  <button type="submit" className="w-full text-left">
+                    {isAdminInStudentView ? (
+                      <>
+                        <User className="h-4 w-4" />
+                        <span>Return to Admin View</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4" />
+                        <span>View as Student</span>
+                      </>
+                    )}
+                  </button>
+              </DropdownMenuItem>
+            </form>
+          )}
           <form action={logoutAction} className="w-full">
             <DropdownMenuItem asChild>
                 <button type="submit" className="w-full text-left">
