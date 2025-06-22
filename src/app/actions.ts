@@ -125,14 +125,24 @@ export async function updateLessonAction(
 ): Promise<UpdateLessonFormState> {
   const lessonId = formData.get('lessonId') as string;
   const lessonTitle = formData.get('lessonTitle') as string;
+  const resourcesToDelete = (formData.get('resourcesToDelete') as string).split(',').filter(Boolean);
+  const newResourceFiles = formData.getAll('newResources') as File[];
 
   if (!lessonId || !lessonTitle) {
     return { message: 'Lesson ID and title are required.', status: 'error' };
   }
+  
+  const newResources = newResourceFiles.filter(f => f.size > 0).map(file => ({ name: file.name }));
 
   try {
-    await updateLesson(lessonId, lessonTitle);
+    await updateLesson(lessonId, { 
+      title: lessonTitle,
+      resourcesToDelete,
+      newResources
+    });
     revalidatePath('/admin/courses');
+    // Also revalidate the student view of this lesson
+    revalidatePath(`/student/course/og-101/lesson/${lessonId}`);
     return {
       message: `Successfully updated lesson.`,
       status: 'success',

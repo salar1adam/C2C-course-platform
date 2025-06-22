@@ -1,4 +1,4 @@
-import type { Course, StudentProgress, User, Module, Lesson } from './types';
+import type { Course, StudentProgress, User, Module, Lesson, Resource } from './types';
 
 // Mock Users
 const users: User[] = [
@@ -104,11 +104,36 @@ export async function updateModule(moduleId: string, newTitle: string): Promise<
     return undefined;
 }
 
-export async function updateLesson(lessonId: string, newTitle: string): Promise<Lesson | undefined> {
+export async function updateLesson(
+    lessonId: string, 
+    updates: { 
+        title: string;
+        resourcesToDelete?: string[];
+        newResources?: { name: string }[];
+    }
+): Promise<Lesson | undefined> {
     for (const module of course.modules) {
         const lesson = module.lessons.find(l => l.id === lessonId);
         if (lesson) {
-            lesson.title = newTitle;
+            lesson.title = updates.title;
+
+            // Delete resources
+            if (updates.resourcesToDelete && updates.resourcesToDelete.length > 0) {
+                lesson.resources = lesson.resources.filter(
+                    r => !updates.resourcesToDelete?.includes(r.id)
+                );
+            }
+
+            // Add new resources
+            if (updates.newResources && updates.newResources.length > 0) {
+                const newResourceObjects: Resource[] = updates.newResources.map((res, index) => ({
+                    id: `r${Date.now()}${index}`, // simple unique ID for mock data
+                    name: res.name,
+                    url: '#', // Placeholder URL for mock data
+                }));
+                lesson.resources.push(...newResourceObjects);
+            }
+
             return lesson;
         }
     }
