@@ -32,29 +32,33 @@ export const auth = admin.auth();
 
 
 // ##################################################################
-// # Database Seeding Logic
+// # Database Seeding & Syncing Logic
 // ##################################################################
 
-// A flag to ensure we only check for seeding once per server instance lifetime.
-let isSeedingChecked = false;
+let isDataSynced = false;
 
-async function ensureDatabaseSeeded() {
-    if (isSeedingChecked) return;
-
+async function ensureDataSynced() {
+    if (isDataSynced) return;
+    
+    // 1. Check if users exist. If not, seed them. This is a one-time operation.
     const usersCollection = db.collection('users');
     const allUsersSnapshot = await usersCollection.limit(1).get();
-    
     if (allUsersSnapshot.empty) {
-        await seedDatabase();
+        console.log('Database is empty. Seeding with initial user data...');
+        await seedUsersAndProgress();
     }
-    isSeedingChecked = true;
+
+    // 2. Always sync the course content from the code to the database.
+    // This ensures that any updates made in the source code are reflected.
+    console.log('Syncing course content from source code...');
+    await syncCourseContent();
+
+    isDataSynced = true;
 }
 
-async function seedDatabase() {
-  console.log('Database is empty. Seeding with initial data...');
-  
+async function seedUsersAndProgress() {
+  console.log('Seeding users and progress...');
   const usersCollection = db.collection('users');
-  const coursesCollection = db.collection('courses');
   const progressCollection = db.collection('studentProgress');
 
   // Seed Users
@@ -63,12 +67,23 @@ async function seedDatabase() {
     { id: '2', name: 'Student User', email: 'student@magellan.com', role: 'student' },
     { id: '3', name: 'Jane Doe', email: 'jane.doe@example.com', role: 'student' },
   ];
-  for (const user of usersData) {
-    await usersCollection.doc(user.id).set(user);
-  }
+  const userPromises = usersData.map(user => usersCollection.doc(user.id).set(user));
+  await Promise.all(userPromises);
   console.log('Seeded users.');
 
-  // Seed Course
+  // Seed Progress
+  const progressData: StudentProgress[] = [
+      { studentId: '2', courseId: 'og-101', completedLessons: ['l1-1'] },
+      { studentId: '3', courseId: 'og-101', completedLessons: [] },
+  ];
+  const progressPromises = progressData.map(progress => progressCollection.doc(`${progress.studentId}_${progress.courseId}`).set(progress));
+  await Promise.all(progressPromises);
+  console.log('Seeded student progress.');
+}
+
+
+async function syncCourseContent() {
+  const coursesCollection = db.collection('courses');
   const courseData: Course = {
     id: 'og-101',
     title: 'Master Oil & Gas Exploration: From Core to Crust',
@@ -137,18 +152,7 @@ async function seedDatabase() {
     ],
   };
   await coursesCollection.doc(courseData.id).set(courseData);
-  console.log('Seeded course.');
-
-  // Seed Progress
-  const progressData: StudentProgress[] = [
-      { studentId: '2', courseId: 'og-101', completedLessons: ['l1-1'] },
-      { studentId: '3', courseId: 'og-101', completedLessons: [] },
-  ];
-  for (const progress of progressData) {
-      await progressCollection.doc(`${progress.studentId}_${progress.courseId}`).set(progress);
-  }
-  console.log('Seeded student progress.');
-  console.log('Database seeding complete.');
+  console.log('Course content synced.');
 }
 
 
@@ -157,7 +161,7 @@ async function seedDatabase() {
 // ##################################################################
 
 export async function findUserByEmail(email: string): Promise<User | undefined> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const snapshot = await db.collection('users').where('email', '==', email).limit(1).get();
     if (snapshot.empty) {
         return undefined;
@@ -166,19 +170,19 @@ export async function findUserByEmail(email: string): Promise<User | undefined> 
 }
 
 export async function findUserById(id: string): Promise<User | undefined> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const doc = await db.collection('users').doc(id).get();
     return doc.exists ? doc.data() as User : undefined;
 }
 
 export async function getAllUsers(): Promise<User[]> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const snapshot = await db.collection('users').get();
     return snapshot.docs.map(doc => doc.data() as User);
 }
 
 export async function createStudent(name: string, email: string): Promise<User> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const usersCollection = db.collection('users');
     const existingUser = await usersCollection.where('email', '==', email).get();
     if (!existingUser.empty) {
@@ -208,21 +212,21 @@ export async function createStudent(name: string, email: string): Promise<User> 
 // ##################################################################
 
 export async function getCourse(id: string): Promise<Course | undefined> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const docRef = db.collection('courses').doc(id);
     const doc = await docRef.get();
     return doc.exists ? doc.data() as Course : undefined;
 }
 
 export async function getStudentProgress(studentId: string, courseId: string): Promise<StudentProgress | undefined> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const docId = `${studentId}_${courseId}`;
     const doc = await db.collection('studentProgress').doc(docId).get();
     return doc.exists ? doc.data() as StudentProgress : undefined;
 }
 
 export async function updateStudentProgress(studentId: string, courseId: string, lessonId: string): Promise<StudentProgress> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const docId = `${studentId}_${courseId}`;
     const docRef = db.collection('studentProgress').doc(docId);
     const doc = await docRef.get();
@@ -243,7 +247,7 @@ export async function updateStudentProgress(studentId: string, courseId: string,
 
 
 export async function updateModule(courseId: string, moduleId: string, newTitle: string): Promise<Module> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const courseRef = db.collection('courses').doc(courseId);
     const courseDoc = await courseRef.get();
     if (!courseDoc.exists) {
@@ -270,7 +274,7 @@ export async function updateLesson(
         videoUrl: string;
     }
 ): Promise<Lesson> {
-    await ensureDatabaseSeeded();
+    await ensureDataSynced();
     const courseRef = db.collection('courses').doc(courseId);
     const courseDoc = await courseRef.get();
     if (!courseDoc.exists) {
