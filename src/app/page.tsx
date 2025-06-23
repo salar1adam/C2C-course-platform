@@ -4,6 +4,7 @@ import { Shell } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth.server';
 import { redirect } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Logo } from '@/components/layout/logo';
 
 export default async function LoginPage() {
   let user;
@@ -56,9 +57,7 @@ export default async function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-lg">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <Shell className="h-8 w-8" />
-            </div>
+            <Logo className="mx-auto h-20 w-20 mb-4" />
             <CardTitle className="text-2xl font-bold tracking-tight">Core to Crust</CardTitle>
             <CardDescription>Secure Course Platform</CardDescription>
           </CardHeader>

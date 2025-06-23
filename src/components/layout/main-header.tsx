@@ -9,9 +9,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { LogOut, Shell, Eye, User } from 'lucide-react';
+import { LogOut, Eye, User } from 'lucide-react';
 import { logoutAction, setViewModeAction } from '@/app/actions';
 import { cookies } from 'next/headers';
+import { Logo } from './logo';
 
 export async function MainHeader() {
   const user = await getCurrentUser();
@@ -27,7 +28,7 @@ export async function MainHeader() {
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-2">
-        <Shell className="h-6 w-6 text-primary" />
+        <Logo className="h-8 w-8" />
         <h1 className="text-lg font-semibold">Core to Crust</h1>
       </div>
       <DropdownMenu>
