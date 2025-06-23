@@ -1,18 +1,28 @@
+
 import { getCourse, getStudentProgress } from "@/lib/database.server";
 import { getCurrentUser } from "@/lib/auth.server";
 import { notFound } from "next/navigation";
 import { VideoPlayer } from "@/components/student/video-player";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { File, Download, CheckCircle } from "lucide-react";
+import { File, Download, CheckCircle, Clock } from "lucide-react";
 import { markLessonCompleteAction } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 
-function MarkCompleteButton({ lessonId, courseId, isCompleted }: { lessonId: string, courseId: string, isCompleted: boolean }) {
+function MarkCompleteButton({ lessonId, courseId, isCompleted, hasVideo }: { lessonId: string, courseId: string, isCompleted: boolean, hasVideo: boolean }) {
   if (isCompleted) {
     return <Badge variant="secondary" className="text-base font-semibold py-2 px-4 border-green-600 text-green-600"><CheckCircle className="mr-2 h-5 w-5" />Completed</Badge>;
   }
   
+  if (!hasVideo) {
+    return (
+        <Button size="lg" disabled>
+            <Clock className="mr-2 h-5 w-5" />
+            Content Pending
+        </Button>
+    )
+  }
+
   return (
     <form action={async () => {
         'use server';
@@ -47,7 +57,7 @@ export default async function LessonPage({ params }: { params: { courseId: strin
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{lesson.title}</h1>
             <div className="flex-shrink-0">
-                <MarkCompleteButton lessonId={lesson.id} courseId={course.id} isCompleted={isCompleted} />
+                <MarkCompleteButton lessonId={lesson.id} courseId={course.id} isCompleted={isCompleted} hasVideo={!!lesson.videoUrl} />
             </div>
           </div>
 

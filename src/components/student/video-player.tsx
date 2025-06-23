@@ -1,4 +1,6 @@
 
+import { Video } from 'lucide-react';
+
 type VideoPlayerProps = {
   videoUrl: string;
 };
@@ -47,6 +49,20 @@ function getGoogleDriveEmbedUrl(url: string): string | null {
 }
 
 export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
+  if (!videoUrl) {
+    return (
+      <div className="container mx-auto max-w-5xl">
+        <div className="aspect-video w-full flex items-center justify-center bg-muted rounded-lg shadow-inner">
+          <div className="text-center text-muted-foreground">
+            <Video className="mx-auto h-12 w-12" />
+            <p className="mt-2 text-lg font-semibold">No Video Available</p>
+            <p>This lesson's content has not been uploaded yet.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   const youTubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
   const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
   
