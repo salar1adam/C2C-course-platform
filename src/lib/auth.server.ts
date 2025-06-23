@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import type { User } from './types';
-import { findUserByEmail } from './database.server';
+import { findUserByEmail, findUserById } from './database.server';
 
 const SESSION_COOKIE_NAME = 'magellan_session';
 
