@@ -6,54 +6,6 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getCurrentUser } from '@/lib/auth.server';
 
-export type CreateStudentFormState = {
-  message: string;
-  welcomeEmail?: string;
-  status: 'idle' | 'success' | 'error';
-};
-
-export async function createStudentAction(
-  prevState: CreateStudentFormState,
-  formData: FormData
-): Promise<CreateStudentFormState> {
-  const { createStudent } = await import('@/lib/database.server');
-  const { generatePersonalizedWelcomeEmail } = await import(
-    '@/ai/flows/personalized-welcome-email'
-  );
-
-  const studentName = formData.get('studentName') as string;
-  const email = formData.get('email') as string;
-  const learningInterests = formData.get('learningInterests') as string;
-
-  if (!studentName || !email || !learningInterests) {
-    return { message: 'All fields are required.', status: 'error' };
-  }
-
-  try {
-    const newStudent = await createStudent(studentName, email);
-
-    const aiInput = {
-      studentName,
-      courseName: 'Master Oil & Gas Exploration: From Core to Crust',
-      registrationDate: new Date().toISOString().split('T')[0],
-      learningInterests,
-    };
-
-    const { personalizedWelcomeMessage } =
-      await generatePersonalizedWelcomeEmail(aiInput);
-
-    revalidatePath('/admin/users');
-    return {
-      message: `Successfully created student: ${newStudent.name}.`,
-      welcomeEmail: personalizedWelcomeMessage,
-      status: 'success',
-    };
-  } catch (error) {
-    console.error(error);
-    return { message: 'Failed to create student.', status: 'error' };
-  }
-}
-
 export type LoginFormState = {
   message: string;
   status: 'idle' | 'success' | 'error';

@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import type { User } from './types';
-import { findUserByEmail, findUserById } from './database.server';
+import { findUserByEmail } from './database.server';
 
 const SESSION_COOKIE_NAME = 'magellan_session';
 
@@ -34,17 +34,13 @@ export async function getCurrentUser(): Promise<User | null> {
 
 export async function login(formData: FormData) {
   const email = formData.get('email') as string;
-  // In a real app, you'd also get the password and verify it.
-  // const password = formData.get('password') as string;
+  const password = formData.get('password') as string;
 
   const user = await findUserByEmail(email);
 
-  if (!user) {
+  if (!user || user.password !== password) {
     return { error: 'Invalid credentials' };
   }
-  
-  // Here you would verify the password
-  // For now, we'll just accept any user found by email.
 
   await createSession(user);
   return { success: true, role: user.role };

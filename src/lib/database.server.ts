@@ -40,16 +40,16 @@ let isDataSynced = false;
 async function ensureDataSynced() {
     if (isDataSynced) return;
     
-    // 1. Check if users exist. If not, seed them. This is a one-time operation.
     const usersCollection = db.collection('users');
     const allUsersSnapshot = await usersCollection.limit(1).get();
     if (allUsersSnapshot.empty) {
         console.log('Database is empty. Seeding with initial user data...');
         await seedUsersAndProgress();
+    } else {
+        // If users exist, still sync the users and course content to ensure it's up to date with the code.
+        await seedUsersAndProgress();
     }
 
-    // 2. Always sync the course content from the code to the database.
-    // This ensures that any updates made in the source code are reflected.
     console.log('Syncing course content from source code...');
     await syncCourseContent();
 
@@ -61,22 +61,35 @@ async function seedUsersAndProgress() {
   const usersCollection = db.collection('users');
   const progressCollection = db.collection('studentProgress');
 
-  // Seed Users
   const usersData: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@magellan.com', role: 'admin' },
-    { id: '2', name: 'Student User', email: 'student@magellan.com', role: 'student' },
-    { id: '3', name: 'Jane Doe', email: 'jane.doe@example.com', role: 'student' },
+    { id: 'admin-salar', name: 'salar', email: 'salar', role: 'admin', password: '147741147' },
+    { id: 'student-1', name: 's.n1', email: 's.n1', role: 'student', password: 'OM}xILL%ihn]j7vSPI9K' },
+    { id: 'student-2', name: 's.n2', email: 's.n2', role: 'student', password: '(\'D-YmTZ{Q#a$~3f\'E}c' },
+    { id: 'student-3', name: 's.n3', email: 's.n3', role: 'student', password: 'a=TUkb(cEJ,8m4YQ3=fH' },
+    { id: 'student-4', name: 's.n4', email: 's.n4', role: 'student', password: 'SU=!F>hd6F>z2.DL£9;' },
+    { id: 'student-5', name: 's.n5', email: 's.n5', role: 'student', password: 'Nu<V7%@b;wJBXrR3\'91R' },
+    { id: 'student-6', name: 's.n6', email: 's.n6', role: 'student', password: 'I2BD[E/Q<<55SP\':gxr' },
+    { id: 'student-7', name: 's.n7', email: 's.n7', role: 'student', password: 'e#5aga2QGL}EkE1j77X]' },
+    { id: 'student-8', name: 's.n8', email: 's.n8', role: 'student', password: '6[!`j|0CKuuz\'c(-*£4g' },
+    { id: 'student-9', name: 's.n9', email: 's.n9', role: 'student', password: '}z7G[ef1d3J9uG3"}|&a' },
+    { id: 'student-10', name: 's.n10', email: 's.n10', role: 'student', password: '9\\2gztdK[4z_#rz*`I68' }
   ];
+  
   const userPromises = usersData.map(user => usersCollection.doc(user.id).set(user));
   await Promise.all(userPromises);
   console.log('Seeded users.');
 
-  // Seed Progress
-  const progressData: StudentProgress[] = [
-      { studentId: '2', courseId: 'og-101', completedLessons: ['l1-1'] },
-      { studentId: '3', courseId: 'og-101', completedLessons: [] },
-  ];
-  const progressPromises = progressData.map(progress => progressCollection.doc(`${progress.studentId}_${progress.courseId}`).set(progress));
+  const studentIds = usersData.filter(u => u.role === 'student').map(u => u.id);
+  const progressPromises = studentIds.map(studentId => {
+      const progressDocRef = progressCollection.doc(`${studentId}_og-101`);
+      // Set progress only if it doesn't exist
+      return progressDocRef.get().then(doc => {
+          if (!doc.exists) {
+              return progressDocRef.set({ studentId: studentId, courseId: 'og-101', completedLessons: [] });
+          }
+      });
+  });
+
   await Promise.all(progressPromises);
   console.log('Seeded student progress.');
 }
@@ -125,33 +138,33 @@ async function syncCourseContent() {
         id: 'm2',
         title: 'Module 2: Mastering Exploration Techniques',
         lessons: [
-          { id: 'm2-placeholder', title: 'Content will be available next week.', videoUrl: '', resources: [] },
+          { id: 'l2-1', title: 'Content will be available next week.', videoUrl: '', resources: [] },
         ],
       },
       {
         id: 'm3',
         title: 'Module 3: Reservoir Characterization, Modeling, and Forecasting',
         lessons: [
-          { id: 'm3-placeholder', title: 'Content will be available in 2 weeks.', videoUrl: '', resources: [] },
+          { id: 'l3-1', title: 'Content will be available in 2 weeks.', videoUrl: '', resources: [] },
         ],
       },
       {
         id: 'm4',
         title: 'Module 4: Advanced Field Development and Economics',
         lessons: [
-          { id: 'm4-placeholder', title: 'Content will be available in 3 weeks.', videoUrl: '', resources: [] },
+          { id: 'l4-1', title: 'Content will be available in 3 weeks.', videoUrl: '', resources: [] },
         ],
       },
       {
         id: 'm-capstone',
         title: 'Capstone Series: Apply What You’ve Learned',
         lessons: [
-          { id: 'capstone-placeholder', title: 'Content will be available in 4 weeks.', videoUrl: '', resources: [] },
+          { id: 'c-1', title: 'Content will be available in 4 weeks.', videoUrl: '', resources: [] },
         ],
       },
     ],
   };
-  await coursesCollection.doc(courseData.id).set(courseData);
+  await coursesCollection.doc(courseData.id).set(courseData, { merge: true });
   console.log('Course content synced.');
 }
 
@@ -177,33 +190,8 @@ export async function findUserById(id: string): Promise<User | undefined> {
 
 export async function getAllUsers(): Promise<User[]> {
     await ensureDataSynced();
-    const snapshot = await db.collection('users').get();
+    const snapshot = await db.collection('users').orderBy('name').get();
     return snapshot.docs.map(doc => doc.data() as User);
-}
-
-export async function createStudent(name: string, email: string): Promise<User> {
-    await ensureDataSynced();
-    const usersCollection = db.collection('users');
-    const existingUser = await usersCollection.where('email', '==', email).get();
-    if (!existingUser.empty) {
-        throw new Error('User with this email already exists.');
-    }
-
-    const newUserId = db.collection('users').doc().id;
-    const newUser: User = {
-        id: newUserId,
-        name,
-        email,
-        role: 'student',
-    };
-    await usersCollection.doc(newUserId).set(newUser);
-    
-    const courseId = 'og-101';
-    const progressDocId = `${newUserId}_${courseId}`;
-    const newProgress: StudentProgress = { studentId: newUserId, courseId, completedLessons: [] };
-    await db.collection('studentProgress').doc(progressDocId).set(newProgress);
-
-    return newUser;
 }
 
 

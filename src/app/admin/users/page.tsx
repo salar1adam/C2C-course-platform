@@ -1,5 +1,4 @@
 import { getAllUsers } from "@/lib/database.server";
-import { CreateStudentDialog } from "@/components/admin/create-student-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,7 +14,6 @@ export default async function UsersPage() {
                     <CardTitle>User Management</CardTitle>
                     <CardDescription>View and manage all user accounts.</CardDescription>
                 </div>
-                <CreateStudentDialog />
             </CardHeader>
             <CardContent>
                 <Table>
