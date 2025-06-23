@@ -13,7 +13,7 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-      <p className="text-muted-foreground">Overview of the Magellan platform.</p>
+      <p className="text-muted-foreground">Overview of the Core to Crust platform.</p>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
         <Card>

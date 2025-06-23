@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Magellan Course Platform',
+  title: 'Core to Crust Course Platform',
   description: 'A secure, private online course delivery platform.',
 };
 

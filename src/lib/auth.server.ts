@@ -24,7 +24,7 @@ async function findUserById(id: string): Promise<User | undefined> {
 
 // --- Session and Auth Actions ---
 
-const SESSION_COOKIE_NAME = 'magellan_session';
+const SESSION_COOKIE_NAME = 'core_to_crust_session';
 
 async function getSession(): Promise<{ userId: string; role: 'admin' | 'student' } | null> {
   const sessionCookie = cookies().get(SESSION_COOKIE_NAME)?.value;

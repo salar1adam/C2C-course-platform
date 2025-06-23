@@ -28,7 +28,7 @@ export async function MainHeader() {
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-2">
         <Shell className="h-6 w-6 text-primary" />
-        <h1 className="text-lg font-semibold">Magellan</h1>
+        <h1 className="text-lg font-semibold">Core to Crust</h1>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
