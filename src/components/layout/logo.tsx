@@ -3,11 +3,10 @@ import React from 'react';
 export function Logo({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="-15 -20 200 200"
+      viewBox="0 0 180 180"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       fillRule="evenodd"
-      clipRule="evenodd"
       strokeLinejoin="round"
       strokeMiterlimit="2"
     >

@@ -57,7 +57,7 @@ export default async function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-lg">
           <CardHeader className="text-center">
-            <Logo className="mx-auto h-16 w-16 mb-4" />
+            <Logo className="mx-auto h-24 w-24 mb-4" />
             <CardTitle className="text-2xl font-bold tracking-tight">Core to Crust</CardTitle>
             <CardDescription>Secure Course Platform</CardDescription>
           </CardHeader>
