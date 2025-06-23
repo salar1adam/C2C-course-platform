@@ -35,12 +35,12 @@ export function LoginForm() {
         </Alert>
       )}
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">Username</Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="admin@magellan.com or student@magellan.com"
+          placeholder="Username"
           required
         />
       </div>
