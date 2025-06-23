@@ -3,7 +3,26 @@
 
 import { cookies } from 'next/headers';
 import type { User } from './types';
-import { findUserByEmail, findUserById } from './database.server';
+import { db, ensureDataSynced } from './database.server';
+
+// --- User-finding logic is now co-located with auth logic ---
+
+async function findUserByEmail(email: string): Promise<User | undefined> {
+    await ensureDataSynced();
+    const snapshot = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snapshot.empty) {
+        return undefined;
+    }
+    return snapshot.docs[0].data() as User;
+}
+
+async function findUserById(id: string): Promise<User | undefined> {
+    await ensureDataSynced();
+    const doc = await db.collection('users').doc(id).get();
+    return doc.exists ? doc.data() as User : undefined;
+}
+
+// --- Session and Auth Actions ---
 
 const SESSION_COOKIE_NAME = 'magellan_session';
 

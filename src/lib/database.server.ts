@@ -37,7 +37,7 @@ export const auth = admin.auth();
 
 let isDataSynced = false;
 
-async function ensureDataSynced() {
+export async function ensureDataSynced() {
     if (isDataSynced) return;
     
     const usersCollection = db.collection('users');
@@ -172,21 +172,6 @@ async function syncCourseContent() {
 // ##################################################################
 // # User Data Access
 // ##################################################################
-
-export async function findUserByEmail(email: string): Promise<User | undefined> {
-    await ensureDataSynced();
-    const snapshot = await db.collection('users').where('email', '==', email).limit(1).get();
-    if (snapshot.empty) {
-        return undefined;
-    }
-    return snapshot.docs[0].data() as User;
-}
-
-export async function findUserById(id: string): Promise<User | undefined> {
-    await ensureDataSynced();
-    const doc = await db.collection('users').doc(id).get();
-    return doc.exists ? doc.data() as User : undefined;
-}
 
 export async function getAllUsers(): Promise<User[]> {
     await ensureDataSynced();
