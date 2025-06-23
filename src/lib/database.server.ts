@@ -1,3 +1,4 @@
+
 import admin from 'firebase-admin';
 import type { Course, StudentProgress, User, Module, Lesson } from './types';
 
@@ -74,30 +75,65 @@ async function seedDatabase() {
     description: 'An in-depth journey into the world of oil and gas exploration, covering everything from geological fundamentals to advanced extraction techniques.',
     modules: [
       {
-        id: 'm1',
-        title: 'Module 1: Geological Fundamentals',
+        id: 'm1a',
+        title: 'Module 1A: Fundamentals of Petroleum Geoscience',
         lessons: [
-          { id: 'l1-1', title: 'Introduction to Sedimentary Basins', videoUrl: 'https://www.youtube.com/watch?v=f47_eD-0_wA', resources: [{ id: 'r1', name: 'Lesson 1 Script.pdf', url: '#' }] },
-          { id: 'l1-2', title: 'Source Rock and Hydrocarbon Generation', videoUrl: 'https://placehold.co/1920x1080', resources: [{ id: 'r2', name: 'Source Rock Data.zip', url: '#' }] },
+          { id: 'l1-1', title: 'Upstream Sector Overview', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-2', title: 'Key Geoscience Roles in E&P', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-3', title: 'Common Geoscience Workflows and Data Types', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-4', title: 'Petroleum System Key Terminology: Trap, Seal, Reservoir, Source, Migration', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-5', title: 'Plate Boundaries and Basin-Forming Mechanisms', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-6', title: 'Basin Classification: Rift, Passive Margin, Foreland, Intracratonic', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-7', title: 'Basin-Fill Architecture and Tectono-Stratigraphic Evolution', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-8', title: 'Tectonics, Heat Flow, and Hydrocarbon Maturation Relationships', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-9', title: 'Depositional Environments: Fluvial, Deltaic, Turbidite, Carbonate', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-10', title: 'Facies Models and Vertical/Lateral Facies Changes', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-11', title: 'Sequence Stratigraphy: Systems Tracts, Boundaries, Parasequences', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+        ],
+      },
+      {
+        id: 'm1b',
+        title: 'Module 1B: Geological Interpretation & Analysis',
+        lessons: [
+          { id: 'l1-12', title: 'Sedimentary Log and Core Interpretation', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-13', title: 'Fault Types and Fold Structures Analysis', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-14', title: 'Trap Classification: Structural vs. Stratigraphic', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-15', title: 'Structural Styles in Different Tectonic Settings', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-16', title: 'Structural Map and Cross-Section Interpretation', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-17', title: 'Kerogen Types and Associated Depositional Environments', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-18', title: 'Rock-Eval Pyrolysis, TOC, and HI vs. Tmax Plot Analysis', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-19', title: 'Biomarker Analysis and Geochemical Correlations', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'l1-20', title: 'Maturity Indicators: Vitrinite Reflectance & Pyrolysis Tmax', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
         ],
       },
       {
         id: 'm2',
-        title: 'Module 2: Seismic Interpretation',
+        title: 'Module 2: Mastering Exploration Techniques',
         lessons: [
-          { id: 'l2-1', title: 'Basics of Seismic Reflection', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
-          { id: 'l2-2', title: 'Structural Traps and Fault Analysis', videoUrl: 'https://placehold.co/1920x1080', resources: [{ id: 'r3', name: 'Trap Analysis Worksheet.pdf', url: '#' }, { id: 'r4', name: 'Example Seismic Data.csv', url: '#' }] },
-          { id: 'l2-3', title: 'Stratigraphic Traps', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
+          { id: 'm2-placeholder', title: 'Content will be available next week.', videoUrl: '', resources: [] },
         ],
       },
       {
-          id: 'm3',
-          title: 'Module 3: Well Logging & Formation Evaluation',
-          lessons: [
-            { id: 'l3-1', title: 'Introduction to Well Logging', videoUrl: 'https://placehold.co/1920x1080', resources: [{id: 'r5', name: 'Logging Tools Overview.pdf', url: '#'}] },
-            { id: 'l3-2', title: 'Reservoir Characterization', videoUrl: 'https://placehold.co/1920x1080', resources: [] },
-          ],
-        },
+        id: 'm3',
+        title: 'Module 3: Reservoir Characterization, Modeling, and Forecasting',
+        lessons: [
+          { id: 'm3-placeholder', title: 'Content will be available in 2 weeks.', videoUrl: '', resources: [] },
+        ],
+      },
+      {
+        id: 'm4',
+        title: 'Module 4: Advanced Field Development and Economics',
+        lessons: [
+          { id: 'm4-placeholder', title: 'Content will be available in 3 weeks.', videoUrl: '', resources: [] },
+        ],
+      },
+      {
+        id: 'm-capstone',
+        title: 'Capstone Series: Apply What You’ve Learned',
+        lessons: [
+          { id: 'capstone-placeholder', title: 'Content will be available in 4 weeks.', videoUrl: '', resources: [] },
+        ],
+      },
     ],
   };
   await coursesCollection.doc(courseData.id).set(courseData);
