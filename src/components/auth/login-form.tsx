@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState } from 'react';
@@ -39,7 +40,7 @@ export function LoginForm() {
         <Input
           id="email"
           name="email"
-          type="email"
+          type="text"
           placeholder="Username"
           required
         />
