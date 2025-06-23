@@ -3,7 +3,7 @@ import React from 'react';
 export function Logo({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 172 170"
+      viewBox="-15 -20 200 200"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       fillRule="evenodd"
