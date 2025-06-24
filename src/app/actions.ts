@@ -4,7 +4,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { createDiscussion } from '@/lib/database.server';
 
 export type LoginFormState = {
   message: string;
@@ -176,6 +175,7 @@ export async function createDiscussionAction(
   formData: FormData
 ): Promise<CreateDiscussionFormState> {
   const { getCurrentUser } = await import('@/lib/auth.server');
+  const { createDiscussion } = await import('@/lib/database.server');
   const user = await getCurrentUser();
   if (!user) {
     return { status: 'error', message: 'You must be logged in to post.' };
