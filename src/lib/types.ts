@@ -37,3 +37,13 @@ export interface StudentProgress {
   courseId: string;
   completedLessons: string[];
 }
+
+export interface Discussion {
+  id: string;
+  title: string;
+  message: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string;
+  createdAt: string; // ISO string
+}

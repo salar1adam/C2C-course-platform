@@ -1,6 +1,6 @@
 
 import admin from 'firebase-admin';
-import type { Course, StudentProgress, User, Module, Lesson } from './types';
+import type { Course, StudentProgress, User, Module, Lesson, Discussion } from './types';
 
 // ##################################################################
 // # Firebase Initialization
@@ -276,4 +276,34 @@ export async function updateLesson(
 
     await courseRef.set(courseData);
     return targetLesson;
+}
+
+// ##################################################################
+// # Discussion Data Access
+// ##################################################################
+
+export async function createDiscussion(
+    title: string,
+    message: string,
+    author: User
+): Promise<void> {
+    await ensureDataSynced();
+    const discussionRef = db.collection('discussions').doc();
+    const newDiscussion: Discussion = {
+        id: discussionRef.id,
+        title,
+        message,
+        authorId: author.id,
+        authorName: author.name,
+        authorAvatar: `https://placehold.co/100x100.png`, 
+        createdAt: new Date().toISOString(),
+    };
+
+    await discussionRef.set(newDiscussion);
+}
+
+export async function getAllDiscussions(): Promise<Discussion[]> {
+    await ensureDataSynced();
+    const snapshot = await db.collection('discussions').orderBy('createdAt', 'desc').get();
+    return snapshot.docs.map(doc => doc.data() as Discussion);
 }

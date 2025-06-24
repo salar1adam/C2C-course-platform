@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getCurrentUser } from '@/lib/auth.server';
+import { createDiscussion } from '@/lib/database.server';
 
 export type LoginFormState = {
   message: string;
@@ -162,5 +163,36 @@ export async function setViewModeAction(formData: FormData) {
   } else {
     cookies().delete('view_mode');
     redirect('/admin/dashboard');
+  }
+}
+
+export type CreateDiscussionFormState = {
+  message: string;
+  status: 'idle' | 'success' | 'error';
+};
+
+export async function createDiscussionAction(
+  prevState: CreateDiscussionFormState,
+  formData: FormData
+): Promise<CreateDiscussionFormState> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { status: 'error', message: 'You must be logged in to post.' };
+  }
+
+  const title = formData.get('title') as string;
+  const message = formData.get('message') as string;
+
+  if (!title || !message) {
+    return { status: 'error', message: 'Title and message are required.' };
+  }
+
+  try {
+    await createDiscussion(title, message, user);
+    revalidatePath('/student/community');
+    return { status: 'success', message: 'Discussion posted!' };
+  } catch (error) {
+    console.error(error);
+    return { status: 'error', message: 'Failed to post discussion.' };
   }
 }
