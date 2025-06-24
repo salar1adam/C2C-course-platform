@@ -4,7 +4,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { getCurrentUser } from '@/lib/auth.server';
 import { createDiscussion } from '@/lib/database.server';
 
 export type LoginFormState = {
@@ -149,6 +148,7 @@ export async function updateLessonAction(
 }
 
 export async function setViewModeAction(formData: FormData) {
+  const { getCurrentUser } = await import('@/lib/auth.server');
   const user = await getCurrentUser();
   if (user?.role !== 'admin') {
     // This action is only for admins
@@ -175,6 +175,7 @@ export async function createDiscussionAction(
   prevState: CreateDiscussionFormState,
   formData: FormData
 ): Promise<CreateDiscussionFormState> {
+  const { getCurrentUser } = await import('@/lib/auth.server');
   const user = await getCurrentUser();
   if (!user) {
     return { status: 'error', message: 'You must be logged in to post.' };
@@ -206,6 +207,7 @@ export async function createReplyAction(
   prevState: CreateReplyFormState,
   formData: FormData
 ): Promise<CreateReplyFormState> {
+  const { getCurrentUser } = await import('@/lib/auth.server');
   const user = await getCurrentUser();
   if (!user) {
     return { status: 'error', message: 'You must be logged in to reply.' };

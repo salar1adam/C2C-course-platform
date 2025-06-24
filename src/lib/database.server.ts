@@ -97,7 +97,7 @@ async function seedUsersAndProgress() {
 
 async function syncCourseContent() {
   const coursesCollection = db.collection('courses');
-  const courseData: Course = {
+  const courseDataInCode: Course = {
     id: 'og-101',
     title: 'Master Oil & Gas Exploration: From Core to Crust',
     description: 'An in-depth journey into the world of oil and gas exploration, covering everything from geological fundamentals to advanced extraction techniques.',
@@ -164,10 +164,9 @@ async function syncCourseContent() {
       },
     ],
   };
-  await coursesCollection.doc(courseData.id).set(courseData, { merge: true });
+  await coursesCollection.doc(courseDataInCode.id).set(courseDataInCode, { merge: true });
   console.log('Course content synced.');
 }
-
 
 // ##################################################################
 // # User Data Access
