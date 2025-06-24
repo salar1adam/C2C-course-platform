@@ -1,6 +1,12 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, MessageSquare } from "lucide-react";
 
 export default function CommunityPage() {
@@ -16,10 +22,42 @@ export default function CommunityPage() {
                 </p>
             </div>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Start Discussion
-        </Button>
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Start Discussion
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Start a New Discussion</DialogTitle>
+                    <DialogDescription>
+                        Share your thoughts, ask a question, or start a new topic.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="title" className="text-right">
+                            Title
+                        </Label>
+                        <Input id="title" placeholder="What's the topic?" className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label htmlFor="message" className="text-right pt-2">
+                            Message
+                        </Label>
+                        <Textarea id="message" placeholder="Type your message here." className="col-span-3" rows={8} />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="ghost">Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">Post Discussion</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
