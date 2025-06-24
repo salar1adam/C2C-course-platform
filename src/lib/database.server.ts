@@ -40,63 +40,60 @@ let isDataSynced = false;
 export async function ensureDataSynced() {
     if (isDataSynced) return;
     
-    const usersCollection = db.collection('users');
-    const allUsersSnapshot = await usersCollection.limit(1).get();
-    if (allUsersSnapshot.empty) {
-        console.log('Database is empty. Seeding with initial user data...');
-        await seedUsersAndProgress();
-    } else {
-        // If users exist, still sync the users and course content to ensure it's up to date with the code.
-        await seedUsersAndProgress();
-    }
+    // Seed users first
+    await seedUsersAndProgress();
 
-    console.log('Syncing course content from source code...');
-    await syncCourseContent();
+    // Then, seed the initial course content only if it's not already there
+    await seedInitialCourseContent();
 
     isDataSynced = true;
 }
 
 async function seedUsersAndProgress() {
-  console.log('Seeding users and progress...');
   const usersCollection = db.collection('users');
-  const progressCollection = db.collection('studentProgress');
+  const allUsersSnapshot = await usersCollection.limit(1).get();
 
-  const usersData: User[] = [
-    { id: 'admin-salar', name: 'salar', email: 'salar', role: 'admin', password: '147741147' },
-    { id: 'student-1', name: 's.n1', email: 's.n1', role: 'student', password: 'OM}xILL%ihn]j7vSPI9K' },
-    { id: 'student-2', name: 's.n2', email: 's.n2', role: 'student', password: '(\'D-YmTZ{Q#a$~3f\'E}c' },
-    { id: 'student-3', name: 's.n3', email: 's.n3', role: 'student', password: 'a=TUkb(cEJ,8m4YQ3=fH' },
-    { id: 'student-4', name: 's.n4', email: 's.n4', role: 'student', password: 'SU=!F>hd6F>z2.DL£9;' },
-    { id: 'student-5', name: 's.n5', email: 's.n5', role: 'student', password: 'Nu<V7%@b;wJBXrR3\'91R' },
-    { id: 'student-6', name: 's.n6', email: 's.n6', role: 'student', password: 'I2BD[E/Q<<55SP\':gxr' },
-    { id: 'student-7', name: 's.n7', email: 's.n7', role: 'student', password: 'e#5aga2QGL}EkE1j77X]' },
-    { id: 'student-8', name: 's.n8', email: 's.n8', role: 'student', password: '6[!`j|0CKuuz\'c(-*£4g' },
-    { id: 'student-9', name: 's.n9', email: 's.n9', role: 'student', password: '}z7G[ef1d3J9uG3"}|&a' },
-    { id: 'student-10', name: 's.n10', email: 's.n10', role: 'student', password: '9\\2gztdK[4z_#rz*`I68' }
-  ];
-  
-  const userPromises = usersData.map(user => usersCollection.doc(user.id).set(user));
-  await Promise.all(userPromises);
-  console.log('Seeded users.');
+  if (allUsersSnapshot.empty) {
+    console.log('Users collection is empty. Seeding initial user data...');
+    const usersData: User[] = [
+      { id: 'admin-salar', name: 'salar', email: 'salar', role: 'admin', password: '147741147' },
+      { id: 'student-1', name: 's.n1', email: 's.n1', role: 'student', password: 'OM}xILL%ihn]j7vSPI9K' },
+      { id: 'student-2', name: 's.n2', email: 's.n2', role: 'student', password: '(\'D-YmTZ{Q#a$~3f\'E}c' },
+      { id: 'student-3', name: 's.n3', email: 's.n3', role: 'student', password: 'a=TUkb(cEJ,8m4YQ3=fH' },
+      { id: 'student-4', name: 's.n4', email: 's.n4', role: 'student', password: 'SU=!F>hd6F>z2.DL£9;' },
+      { id: 'student-5', name: 's.n5', email: 's.n5', role: 'student', password: 'Nu<V7%@b;wJBXrR3\'91R' },
+      { id: 'student-6', name: 's.n6', email: 's.n6', role: 'student', password: 'I2BD[E/Q<<55SP\':gxr' },
+      { id: 'student-7', name: 's.n7', email: 's.n7', role: 'student', password: 'e#5aga2QGL}EkE1j77X]' },
+      { id: 'student-8', name: 's.n8', email: 's.n8', role: 'student', password: '6[!`j|0CKuuz\'c(-*£4g' },
+      { id: 'student-9', name: 's.n9', email: 's.n9', role: 'student', password: '}z7G[ef1d3J9uG3"}|&a' },
+      { id: 'student-10', name: 's.n10', email: 's.n10', role: 'student', password: '9\\2gztdK[4z_#rz*`I68' }
+    ];
+    const userPromises = usersData.map(user => usersCollection.doc(user.id).set(user));
+    await Promise.all(userPromises);
+    console.log('Seeded users.');
 
-  const studentIds = usersData.filter(u => u.role === 'student').map(u => u.id);
-  const progressPromises = studentIds.map(studentId => {
-      const progressDocRef = progressCollection.doc(`${studentId}_og-101`);
-      // Set progress only if it doesn't exist
-      return progressDocRef.get().then(doc => {
-          if (!doc.exists) {
-              return progressDocRef.set({ studentId: studentId, courseId: 'og-101', completedLessons: [] });
-          }
-      });
-  });
-
-  await Promise.all(progressPromises);
-  console.log('Seeded student progress.');
+    const progressCollection = db.collection('studentProgress');
+    const studentIds = usersData.filter(u => u.role === 'student').map(u => u.id);
+    const progressPromises = studentIds.map(studentId => {
+        const progressDocRef = progressCollection.doc(`${studentId}_og-101`);
+        return progressDocRef.set({ studentId: studentId, courseId: 'og-101', completedLessons: [] });
+    });
+    await Promise.all(progressPromises);
+    console.log('Seeded initial student progress.');
+  }
 }
 
 
-async function syncCourseContent() {
-  const coursesCollection = db.collection('courses');
+async function seedInitialCourseContent() {
+  const courseRef = db.collection('courses').doc('og-101');
+  const courseDoc = await courseRef.get();
+
+  if (courseDoc.exists) {
+    console.log('Course content already exists in Firestore. Skipping seed.');
+    return;
+  }
+
+  console.log('Course content not found. Seeding initial course data...');
   const courseDataInCode: Course = {
     id: 'og-101',
     title: 'Master Oil & Gas Exploration: From Core to Crust',
@@ -164,8 +161,8 @@ async function syncCourseContent() {
       },
     ],
   };
-  await coursesCollection.doc(courseDataInCode.id).set(courseDataInCode, { merge: true });
-  console.log('Course content synced.');
+  await courseRef.set(courseDataInCode);
+  console.log('Course content seeded.');
 }
 
 // ##################################################################
