@@ -9,11 +9,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { LogOut, Eye, User } from 'lucide-react';
+import { LogOut, Eye, User, LayoutDashboard, MessageSquare } from 'lucide-react';
 import { logoutAction, setViewModeAction } from '@/app/actions';
 import { cookies } from 'next/headers';
 import { Logo } from './logo';
 import { ThemeToggle } from './theme-toggle';
+import Link from 'next/link';
 
 export async function MainHeader() {
   const user = await getCurrentUser();
@@ -25,6 +26,7 @@ export async function MainHeader() {
 
   const userInitials = user.name.split(' ').map(n => n[0]).join('');
   const isAdminInStudentView = user.role === 'admin' && viewMode === 'student';
+  const isStudentView = user.role === 'student' || isAdminInStudentView;
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
@@ -49,6 +51,23 @@ export async function MainHeader() {
               <div className='text-xs text-muted-foreground'>{user.email}</div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {isStudentView && (
+              <>
+                <DropdownMenuItem asChild>
+                  <Link href="/student/dashboard">
+                    <LayoutDashboard />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/student/community">
+                    <MessageSquare />
+                    <span>Community</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             {user.role === 'admin' && (
               <form action={setViewModeAction} className="w-full">
                 <input type="hidden" name="mode" value={isAdminInStudentView ? 'admin' : 'student'} />
@@ -56,12 +75,12 @@ export async function MainHeader() {
                     <button type="submit" className="w-full text-left">
                       {isAdminInStudentView ? (
                         <>
-                          <User className="h-4 w-4" />
+                          <User />
                           <span>Return to Admin View</span>
                         </>
                       ) : (
                         <>
-                          <Eye className="h-4 w-4" />
+                          <Eye />
                           <span>View as Student</span>
                         </>
                       )}
@@ -72,7 +91,7 @@ export async function MainHeader() {
             <form action={logoutAction} className="w-full">
               <DropdownMenuItem asChild>
                   <button type="submit" className="w-full text-left">
-                      <LogOut className="h-4 w-4" />
+                      <LogOut />
                       <span>Logout</span>
                   </button>
               </DropdownMenuItem>
