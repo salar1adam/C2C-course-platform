@@ -196,3 +196,39 @@ export async function createDiscussionAction(
     return { status: 'error', message: 'Failed to post discussion.' };
   }
 }
+
+export type CreateReplyFormState = {
+  message: string;
+  status: 'idle' | 'success' | 'error';
+};
+
+export async function createReplyAction(
+  prevState: CreateReplyFormState,
+  formData: FormData
+): Promise<CreateReplyFormState> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { status: 'error', message: 'You must be logged in to reply.' };
+  }
+
+  const message = formData.get('message') as string;
+  const discussionId = formData.get('discussionId') as string;
+
+  if (!message) {
+    return { status: 'error', message: 'Reply message cannot be empty.' };
+  }
+   if (!discussionId) {
+    return { status: 'error', message: 'Discussion ID is missing.' };
+  }
+
+  try {
+    const { createReply } = await import('@/lib/database.server');
+    await createReply(discussionId, message, user);
+    revalidatePath('/student/community'); // revalidate list page
+    revalidatePath(`/student/community/${discussionId}`); // revalidate discussion page
+    return { status: 'success', message: 'Reply posted!' };
+  } catch (error) {
+    console.error(error);
+    return { status: 'error', message: 'Failed to post reply.' };
+  }
+}

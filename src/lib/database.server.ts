@@ -1,6 +1,6 @@
 
 import admin from 'firebase-admin';
-import type { Course, StudentProgress, User, Module, Lesson, Discussion } from './types';
+import type { Course, StudentProgress, User, Module, Lesson, Discussion, Reply } from './types';
 
 // ##################################################################
 // # Firebase Initialization
@@ -297,6 +297,7 @@ export async function createDiscussion(
         authorName: author.name,
         authorAvatar: `https://placehold.co/100x100.png`, 
         createdAt: new Date().toISOString(),
+        replyCount: 0,
     };
 
     await discussionRef.set(newDiscussion);
@@ -306,4 +307,42 @@ export async function getAllDiscussions(): Promise<Discussion[]> {
     await ensureDataSynced();
     const snapshot = await db.collection('discussions').orderBy('createdAt', 'desc').get();
     return snapshot.docs.map(doc => doc.data() as Discussion);
+}
+
+export async function getDiscussionById(discussionId: string): Promise<Discussion | undefined> {
+    await ensureDataSynced();
+    const doc = await db.collection('discussions').doc(discussionId).get();
+    return doc.exists ? doc.data() as Discussion : undefined;
+}
+
+export async function getRepliesForDiscussion(discussionId: string): Promise<Reply[]> {
+    await ensureDataSynced();
+    const snapshot = await db.collection('discussions').doc(discussionId).collection('replies').orderBy('createdAt', 'asc').get();
+    return snapshot.docs.map(doc => doc.data() as Reply);
+}
+
+export async function createReply(discussionId: string, message: string, author: User): Promise<void> {
+    await ensureDataSynced();
+    const discussionRef = db.collection('discussions').doc(discussionId);
+    const replyRef = discussionRef.collection('replies').doc();
+
+    const newReply: Reply = {
+        id: replyRef.id,
+        discussionId: discussionId,
+        authorId: author.id,
+        authorName: author.name,
+        authorAvatar: `https://placehold.co/100x100.png`,
+        message: message,
+        createdAt: new Date().toISOString(),
+    };
+    
+    await db.runTransaction(async (transaction) => {
+        const discussionDoc = await transaction.get(discussionRef);
+        if (!discussionDoc.exists) {
+            throw "Discussion not found";
+        }
+
+        transaction.set(replyRef, newReply);
+        transaction.update(discussionRef, { replyCount: admin.firestore.FieldValue.increment(1) });
+    });
 }

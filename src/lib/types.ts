@@ -38,6 +38,16 @@ export interface StudentProgress {
   completedLessons: string[];
 }
 
+export interface Reply {
+  id: string;
+  discussionId: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string;
+  message: string;
+  createdAt: string; // ISO string
+}
+
 export interface Discussion {
   id: string;
   title: string;
@@ -46,4 +56,5 @@ export interface Discussion {
   authorName: string;
   authorAvatar: string;
   createdAt: string; // ISO string
+  replyCount: number;
 }

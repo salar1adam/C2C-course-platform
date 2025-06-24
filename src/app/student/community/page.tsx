@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { getAllDiscussions } from '@/lib/database.server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare } from "lucide-react";
+import { MessageCircle, MessageSquare } from "lucide-react";
 import { CreateDiscussionDialog } from '@/components/student/create-discussion-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
@@ -40,25 +41,33 @@ export default async function CommunityPage() {
               </div>
             </div>
           ) : (
-            <ul className="space-y-6">
+            <ul className="space-y-4">
               {discussions.map(discussion => (
-                <li key={discussion.id} className="p-4 rounded-lg border bg-card flex gap-4 items-start">
-                   <Avatar>
-                      <AvatarImage src={discussion.authorAvatar} alt={discussion.authorName} />
-                      <AvatarFallback>{discussion.authorName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-semibold">{discussion.title}</h4>
-                        <time className="text-xs text-muted-foreground whitespace-nowrap">
-                          {formatDistanceToNow(new Date(discussion.createdAt), { addSuffix: true })}
-                        </time>
+                <li key={discussion.id}>
+                  <Link href={`/student/community/${discussion.id}`} className="block p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
+                    <div className="flex gap-4 items-start">
+                      <Avatar>
+                          <AvatarImage src={discussion.authorAvatar} alt={discussion.authorName} />
+                          <AvatarFallback>{discussion.authorName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                            <h4 className="text-lg font-semibold">{discussion.title}</h4>
+                            <time className="text-xs text-muted-foreground whitespace-nowrap">
+                              {formatDistanceToNow(new Date(discussion.createdAt), { addSuffix: true })}
+                            </time>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          By {discussion.authorName}
+                        </p>
+                        <p className="mt-3 text-sm line-clamp-2">{discussion.message}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
+                          <MessageCircle className="h-4 w-4" />
+                          <span>{discussion.replyCount} {discussion.replyCount === 1 ? 'reply' : 'replies'}</span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      By {discussion.authorName}
-                    </p>
-                    <p className="mt-3 text-sm">{discussion.message}</p>
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>
