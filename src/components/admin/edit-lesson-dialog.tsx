@@ -68,10 +68,10 @@ export function EditLessonDialog({ lesson, courseId }: { lesson: Lesson; courseI
                 id="lessonVideoUrl" 
                 name="lessonVideoUrl" 
                 defaultValue={lesson.videoUrl || ''} 
-                placeholder="e.g., https://www.youtube.com/watch?v=..."
+                placeholder="e.g., https://... or a Wistia ID like 91yphynmzf"
             />
              <p className="text-xs text-muted-foreground mt-1">
-                Provide a direct video URL or a YouTube link.
+                Provide a direct video URL, YouTube link, Google Drive link, or a Wistia video ID.
             </p>
           </div>
 
