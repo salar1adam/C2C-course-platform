@@ -1,5 +1,6 @@
 
 import { Video } from 'lucide-react';
+import { WistiaPlayer } from './wistia-player';
 
 type VideoPlayerProps = {
   videoUrl: string;
@@ -48,6 +49,17 @@ function getGoogleDriveEmbedUrl(url: string): string | null {
   return null;
 }
 
+function getWistiaId(url: string): string | null {
+  if (!url) return null;
+  // A simple regex to check for a typical 10-character Wistia ID.
+  // It also ensures it's not a full URL by checking for common protocols or slashes.
+  const wistiaIdRegex = /^[a-z0-9]{10}$/i;
+  if (!url.includes('/') && !url.includes(':') && wistiaIdRegex.test(url)) {
+    return url;
+  }
+  return null;
+}
+
 export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
   if (!videoUrl) {
     return (
@@ -63,6 +75,17 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
     );
   }
   
+  const wistiaId = getWistiaId(videoUrl);
+  if (wistiaId) {
+    return (
+      <div className="container mx-auto max-w-5xl">
+        <div className="aspect-video w-full">
+            <WistiaPlayer videoId={wistiaId} />
+        </div>
+      </div>
+    );
+  }
+
   const youTubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
   const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
   
