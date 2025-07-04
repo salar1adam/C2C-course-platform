@@ -4,7 +4,7 @@ import { getCourse, getStudentProgress } from '@/lib/database.server';
 import { getCurrentUser } from '@/lib/auth.server';
 import { CheckCircle, Circle, Menu } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 
 export default async function CourseLayout({
@@ -110,9 +110,9 @@ export default async function CourseLayout({
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="flex flex-col p-0">
-                        <div className='p-4 border-b'>
-                             <h2 className='text-lg font-semibold tracking-tight'>{course.title}</h2>
-                        </div>
+                        <SheetHeader className="p-4 border-b text-left">
+                             <SheetTitle className='text-lg font-semibold tracking-tight'>{course.title}</SheetTitle>
+                        </SheetHeader>
                         {MobileNavigation}
                     </SheetContent>
                 </Sheet>

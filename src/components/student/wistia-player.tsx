@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 type WistiaPlayerProps = {
   videoId: string;
@@ -19,12 +19,15 @@ declare global {
 }
 
 export function WistiaPlayer({ videoId }: WistiaPlayerProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const swatchUrl = `https://fast.wistia.com/embed/medias/${videoId}/swatch`;
   const videoScriptUrl = `https://fast.wistia.com/embed/${videoId}.js`;
 
-  // This is a bit of a hack to inject the dynamic style for the loading swatch.
-  // Using a <style> tag directly in JSX is not ideal, but it's the most straightforward way
-  // to implement Wistia's recommendation.
   const styleContent = `
     wistia-player[media-id='${videoId}']:not(:defined) {
       background: center / contain no-repeat url('${swatchUrl}');
@@ -33,6 +36,20 @@ export function WistiaPlayer({ videoId }: WistiaPlayerProps) {
       padding-top: 56.25%; /* Default to 16:9 aspect ratio for loading */
     }
   `;
+
+  if (!isMounted) {
+    // Render a static placeholder on the server to prevent hydration mismatch.
+    // This div will be replaced on the client once the component mounts.
+    return (
+      <div
+        style={{
+          paddingTop: '56.25%',
+          background: `center / contain no-repeat url('${swatchUrl}')`,
+          filter: 'blur(5px)',
+        }}
+      />
+    );
+  }
 
   return (
     <>
