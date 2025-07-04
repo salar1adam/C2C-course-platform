@@ -56,7 +56,7 @@ async function seedUsersAndProgress() {
   if (allUsersSnapshot.empty) {
     console.log('Users collection is empty. Seeding initial user data...');
     const usersData: User[] = [
-      { id: 'admin-salar', name: 'salar', email: 'salar', role: 'admin', password: '12345' },
+      { id: 'admin-salar', name: 'salar', email: 'salar', role: 'admin', password: '123456' },
       { id: 'student-1', name: 's.n1', email: 's.n1', role: 'student', password: 'OM}xILL%ihn]j7vSPI9K' },
       { id: 'student-2', name: 's.n2', email: 's.n2', role: 'student', password: '(\'D-YmTZ{Q#a$~3f\'E}c' },
       { id: 'student-3', name: 's.n3', email: 's.n3', role: 'student', password: 'a=TUkb(cEJ,8m4YQ3=fH' },
